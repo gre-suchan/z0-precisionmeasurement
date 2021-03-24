@@ -64,14 +64,18 @@ print("Hardronen Untergrund:", (len(hardron_el) + len(hardron_mu) + len(hardron_
 print("Hardronen Akzeptanzverlust:", (len(ncharged_ha) - len(hardron_ha)) / len(ncharged_ha))
 
 # Muon Cuts
-muon_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7) & ((branches_mu[b'Pcharged']
-    / branches_mu[b'E_ecal']) >= 8)]
-muon_tau = e_ecal_tau[branches_tau[b'Ncharged'] < 7 &
-        ((branches_tau[b'Pcharged'] / branches_tau[b'E_ecal']) >= 8)]
-muon_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7) &
-        ((branches_ha[b'Pcharged'] / branches_ha[b'E_ecal']) >= 8)]
-muon_el = e_ecal_el[(branches_el[b'Ncharged'] < 7) &
-        ((branches_el[b'Pcharged'] / branches_el[b'E_ecal']) >= 8)]
+muon_el = e_ecal_el[(branches_el[b'Ncharged'] < 7) & (branches_el[b'E_ecal'] <
+    10)
+        & ((branches_el[b'Pcharged'] >= 70) | (branches_el[b'Pcharged'] == 0))]
+muon_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7) & (branches_mu[b'E_ecal'] <
+    10)
+        & ((branches_mu[b'Pcharged'] >= 70) | (branches_mu[b'Pcharged'] == 0))]
+muon_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & (branches_tau[b'E_ecal']
+    < 10) & ((branches_tau[b'Pcharged'] >= 70) | (branches_tau[b'Pcharged'] ==
+        0))]
+muon_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)  & (branches_ha[b'E_ecal'] <
+    10)
+        & ((branches_ha[b'Pcharged'] >= 70) | (branches_ha[b'Pcharged'] == 0))]
 
 Nmuon_gesamt = len(muon_ha) + len(muon_el) + len(muon_mu) + len(muon_tau)
 
@@ -81,14 +85,10 @@ print("Muon Untergrund:", (len(muon_el) + len(muon_ha) + len(muon_tau)
 print("Muon Akzeptanzverlust:", (len(e_ecal_mu[branches_mu[b'Pcharged'] > 0]) - len(muon_mu)) / len(e_ecal_mu[branches_mu[b'Pcharged'] > 0]))
 
 # Electron Cuts
-electron_el = e_ecal_el[(branches_el[b'Ncharged'] < 7) & ((branches_el[b'Pcharged']
-    / branches_el[b'E_ecal']) < 8) & (branches_el[b'E_ecal'] >= 70)]
-electron_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7) & ((branches_mu[b'Pcharged']
-    / branches_mu[b'E_ecal']) < 8) & (branches_mu[b'E_ecal'] >= 70)]
-electron_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & ((branches_tau[b'Pcharged']
-    / branches_tau[b'E_ecal']) < 8) & (branches_tau[b'E_ecal'] >= 70)]
-electron_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7) & ((branches_ha[b'Pcharged']
-    / branches_ha[b'E_ecal']) < 8) & (branches_ha[b'E_ecal'] >= 70)]
+electron_el = e_ecal_el[(branches_el[b'Ncharged'] < 7) & (branches_el[b'E_ecal'] >= 70)]
+electron_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7) & (branches_mu[b'E_ecal'] >= 70)]
+electron_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & (branches_tau[b'E_ecal'] >= 70)]
+electron_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)  & (branches_ha[b'E_ecal'] >= 70)]
 Nelectron_gesamt = len(electron_ha) + len(electron_el) + len(electron_mu) + len(electron_tau)
 
 print("Electron Untergrund:", (len(electron_mu) + len(electron_ha) +
@@ -99,14 +99,19 @@ print("Electron Akzeptanzverlust:", (len(e_ecal_el) - len(electron_el)) /
         len(e_ecal_el))
 
 # Tau Cuts
-tau_el = e_ecal_el[(branches_el[b'Ncharged'] < 7) & ((branches_el[b'Pcharged']
-    / branches_el[b'E_ecal']) < 8) & (branches_el[b'E_ecal'] < 60)]
-tau_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7) & ((branches_mu[b'Pcharged']
-    / branches_mu[b'E_ecal']) < 8) & (branches_mu[b'E_ecal'] < 60)]
-tau_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & ((branches_tau[b'Pcharged']
-    / branches_tau[b'E_ecal']) < 8) & (branches_tau[b'E_ecal'] < 60)]
-tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7) & ((branches_ha[b'Pcharged']
-    / branches_ha[b'E_ecal']) < 8) & (branches_ha[b'E_ecal'] < 60)]
+tau_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)  & (branches_el[b'E_ecal'] <
+    66) & (branches_el[b'E_ecal'] > 10)
+    & (branches_el[b'Pcharged'] <= 70) & (branches_el[b'Pcharged'] > 0)]
+tau_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)  & (branches_mu[b'E_ecal'] <
+    65) & (branches_mu[b'E_ecal'] > 10)
+    & (branches_mu[b'Pcharged'] <= 70) & (branches_mu[b'Pcharged'] > 0)]
+tau_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & (branches_tau[b'E_ecal']
+    < 65) & (branches_tau[b'E_ecal'] > 10)
+    & (branches_tau[b'Pcharged'] <= 70) & (branches_tau[b'Pcharged'] > 0)]
+tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7) & (branches_ha[b'E_ecal'] <
+    65) & (branches_ha[b'E_ecal'] > 10)
+    & (branches_ha[b'Pcharged'] <= 70) & (branches_ha[b'Pcharged'] > 0)]
+
 Ntau_gesamt = len(tau_ha) + len(tau_el) + len(tau_mu) + len(tau_tau)
 
 print("Tau Untergrund:", (len(tau_mu) + len(tau_ha) +
@@ -118,18 +123,17 @@ print("Tau Akzeptanzverlust:", (len(e_ecal_tau) - len(tau_tau)) /
 
 
 
+plt.hist(pcharged_tau,color='r', bins=np.linspace(0,100,100))
+plt.hist(pcharged_mu, color='g', bins=np.linspace(0,100,100), alpha=0.7)
+plt.show()
 
 
 
-#plt.hist(e_hcal, bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
-#plt.hist(e_hcal2, bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],alpha=0.7)
-#plt.show()
 
-#plt.hist(e_ecal,
-#         bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130])
-#plt.hist(e_ecal2,
-#         bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130],
-#         alpha=0.7)
-#plt.show()
+
+
+
+
+
 
 
