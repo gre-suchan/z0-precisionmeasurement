@@ -1,0 +1,3 @@
+[submodule "z0decayMC"]
+	path = z0decayMC
+	url = https://github.com/josepretel/z0decayMC.git
