@@ -5,39 +5,34 @@ import matplotlib.pyplot as plt
 
 path_data = '../../z0decayMC/'
 
-file = uproot.open(path_data + 'ee.root')
+file_el = uproot.open(path_data + 'ee.root')
 ttree_name = 'myTTree'
+file_el[ttree_name].keys()
+branches_el = file_el[ttree_name].arrays()
 
-file[ttree_name].keys()
+e_ecal_el = ak.to_numpy(branches_el[b'E_ecal'])
+e_hcal_el = ak.to_numpy(branches_el[b'E_hcal'])
 
-branches = file[ttree_name].arrays()
 
-print(branches)
-var = b'E_ecal'
-e_ecal = ak.to_numpy(branches[var])
-var4 = b'E_hcal'
-e_hcal = ak.to_numpy(branches[var4])
-
-file2 = uproot.open(path_data + 'tt.root')
-
+file_tau = uproot.open(path_data + 'tt.root')
 ttree_name2 = 'myTTree'
+file_tau[ttree_name2].keys()
+branches_tau = file_tau[ttree_name2].arrays()
 
-file2[ttree_name2].keys()
-
-branches = file2[ttree_name2].arrays()
-
-var2 = b'E_ecal'
-e_ecal2 = ak.to_numpy(branches[var2])
-var3 = b'E_hcal'
-e_hcal2 = ak.to_numpy(branches[var3])
+e_ecal_tau = ak.to_numpy(branches_tau[b'E_ecal'])
+e_hcal_tau = ak.to_numpy(branches_tau[b'E_hcal'])
 
 # plt.hist(e_hcal, bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
 # plt.hist(e_hcal2, bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50],alpha=0.7)
 # plt.show()
 
-plt.hist(e_ecal,
-         bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130])
-plt.hist(e_ecal2,
-         bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130],
-         alpha=0.7)
+#plt.hist(e_ecal,
+#         bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130])
+#plt.hist(e_ecal2,
+#         bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130],
+#         alpha=0.7)
+#plt.show()
+
+angle = ak.to_numpy(branches_el['cos_thru'])
+plt.hist(angle)
 plt.show()
