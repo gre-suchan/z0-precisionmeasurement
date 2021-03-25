@@ -1,5 +1,5 @@
 import uproot
-import awkward as ak
+import pandas as pd
 
 # Path to the MC submodule
 path_data = '../../z0decayMC/'
@@ -8,60 +8,35 @@ path_data = '../../z0decayMC/'
 # Here we just read in the MC root files and name all the branches. This can
 # probably be done better in a pandas df.
 
+ttree_name = 'myTTree'
 # Set up electron data
 file_el = uproot.open(path_data + 'ee.root')
-ttree_name = 'myTTree'
-file_el[ttree_name].keys()
-branches_el = file_el[ttree_name].arrays()
-
-ncharged_el = ak.to_numpy(branches_el[b'Ncharged'])
-pcharged_el = ak.to_numpy(branches_el[b'Pcharged'])
-e_ecal_el = ak.to_numpy(branches_el[b'E_ecal'])
-e_hcal_el = ak.to_numpy(branches_el[b'E_hcal'])
-
-# Set up tau data
 file_tau = uproot.open(path_data + 'tt.root')
-ttree_name2 = 'myTTree'
-file_tau[ttree_name2].keys()
-branches_tau = file_tau[ttree_name2].arrays()
-
-ncharged_tau = ak.to_numpy(branches_tau[b'Ncharged'])
-pcharged_tau = ak.to_numpy(branches_tau[b'Pcharged'])
-e_ecal_tau = ak.to_numpy(branches_tau[b'E_ecal'])
-e_hcal_tau = ak.to_numpy(branches_tau[b'E_hcal'])
-
-# Set up muon data
 file_mu = uproot.open(path_data + 'mm.root')
-ttree_name3 = 'myTTree'
-file_mu[ttree_name3].keys()
-branches_mu = file_mu[ttree_name3].arrays()
-
-ncharged_mu = ak.to_numpy(branches_mu[b'Ncharged'])
-pcharged_mu = ak.to_numpy(branches_mu[b'Pcharged'])
-e_ecal_mu = ak.to_numpy(branches_mu[b'E_ecal'])
-e_hcal_mu = ak.to_numpy(branches_mu[b'E_hcal'])
-
-# Set up hadron data
 file_ha = uproot.open(path_data + 'qq.root')
-ttree_name4 = 'myTTree'
-file_ha[ttree_name4].keys()
-branches_ha = file_ha[ttree_name4].arrays()
 
-ncharged_ha = ak.to_numpy(branches_ha[b'Ncharged'])
-pcharged_ha = ak.to_numpy(branches_ha[b'Pcharged'])
-e_ecal_ha = ak.to_numpy(branches_ha[b'E_ecal'])
-e_hcal_ha = ak.to_numpy(branches_ha[b'E_hcal'])
-# }}}
+branches_el = file_el[ttree_name].arrays(namedecode='utf-8')
+branches_tau = file_tau[ttree_name].arrays(namedecode='utf-8')
+branches_mu = file_mu[ttree_name].arrays(namedecode='utf-8')
+branches_ha = file_ha[ttree_name].arrays(namedecode='utf-8')
+
+df_el = pd.DataFrame(branches_el)
+df_tau = pd.DataFrame(branches_tau)
+df_mu = pd.DataFrame(branches_mu)
+df_ha = pd.DataFrame(branches_ha)
+
+df_el['ptype'] = 'e'
+df_tau['ptype'] = 't'
+df_mu['ptype'] = 'm'
+df_ha['ptype'] = 'h'
+
+df = pd.concat([df_el, df_tau, df_mu, df_ha])
+df['guess'] = 'u'
 
 # Hadron Cuts
 # This is the first cut we make: All events with more than 7 charged tracks are
 # selected to be hadrons.
-hadron_ha = ncharged_ha[branches_ha[b'Ncharged'] >= 7]
-hadron_el = ncharged_el[branches_el[b'Ncharged'] >= 7]
-hadron_mu = ncharged_mu[branches_mu[b'Ncharged'] >= 7]
-hadron_tau = ncharged_tau[branches_tau[b'Ncharged'] >= 7]
-Nhadron_total = len(hadron_ha) + len(hadron_el) + \
-    len(hadron_mu) + len(hadron_tau)
+df.loc[df['Ncharged'] >= 7, 'guess'] = 'h'
 
 # Muon Cuts
 # Now we select the muons. For this we require that the energy in the
@@ -72,40 +47,15 @@ Nhadron_total = len(hadron_ha) + len(hadron_el) + \
 # sum of zero, we select those to be muons, too, if all the other requirements
 # were met. Currently, we don't know why the scalar momentum sum is 0 at all,
 # however, we know that those are about 90% Muons
-muon_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
-                    & (branches_el[b'E_ecal'] < 10) &
-                    ((branches_el[b'Pcharged'] >= 70) |
-                     (branches_el[b'Pcharged'] == 0))]
-muon_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
-                    & (branches_mu[b'E_ecal'] < 10) &
-                    ((branches_mu[b'Pcharged'] >= 70) |
-                     (branches_mu[b'Pcharged'] == 0))]
-muon_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
-                      & (branches_tau[b'E_ecal'] < 10) &
-                      ((branches_tau[b'Pcharged'] >= 70) |
-                       (branches_tau[b'Pcharged'] == 0))]
-muon_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
-                    & (branches_ha[b'E_ecal'] < 10) &
-                    ((branches_ha[b'Pcharged'] >= 70) |
-                     (branches_ha[b'Pcharged'] == 0))]
 
-Nmuon_total = len(muon_ha) + len(muon_el) + len(muon_mu) + len(muon_tau)
+df.loc[(df['guess'] == 'u') & (df['E_ecal'] < 10) &
+       ((df['Pcharged'] >= 70) | (df['Pcharged'] == 0)), 'guess'] = 'm'
 
 # Electron Cuts
 # Events with a small number of charged particles but a high amount of energy
-# deposited in the E_Ecal are selected to be electrons. The Ncharged condition
-# rejects hadrons (cut 1) and the high E_Ecal value (which is our selection
-# criteria for electrons) automatically rejects muons (cut 2)
-electron_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
-                        & (branches_el[b'E_ecal'] >= 70)]
-electron_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
-                        & (branches_mu[b'E_ecal'] >= 70)]
-electron_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
-                          & (branches_tau[b'E_ecal'] >= 70)]
-electron_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
-                        & (branches_ha[b'E_ecal'] >= 70)]
-Nelectron_total = len(electron_ha) + len(electron_el) + \
-    len(electron_mu) + len(electron_tau)
+# deposited in the E_Ecal are selected to be electrons.
+
+df.loc[(df['guess'] == 'u') & (df['E_ecal'] >= 70), 'guess'] = 'e'
 
 # Tau Cuts
 # Events with low amount of charged particles and medium (i. e. E_Ecal is in
@@ -115,48 +65,18 @@ Nelectron_total = len(electron_ha) + len(electron_el) + \
 # Note that particles with Ncharged < 7 and E_ecal in (66, 70)  are discarded
 # as we couldn't (yet?) think of a criterion that cleanly selects taus from
 # electrons.
-tau_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
-                   & (branches_el[b'E_ecal'] < 65) &
-                   ((branches_el[b'E_ecal'] > 20)
-                    | ((branches_el[b'Pcharged'] <= 70) &
-                       (branches_el[b'Pcharged'] > 0)))]
-tau_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
-                   & (branches_mu[b'E_ecal'] < 65) &
-                   ((branches_mu[b'E_ecal'] > 20)
-                    | ((branches_mu[b'Pcharged'] <= 70) &
-                       (branches_mu[b'Pcharged'] > 0)))]
-tau_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
-                     & (branches_tau[b'E_ecal'] < 65) &
-                     ((branches_tau[b'E_ecal'] > 20)
-                      | ((branches_tau[b'Pcharged'] <= 70) &
-                         (branches_tau[b'Pcharged'] > 0)))]
-tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
-                   & (branches_ha[b'E_ecal'] < 65) &
-                   ((branches_ha[b'E_ecal'] > 20)
-                    | ((branches_ha[b'Pcharged'] <= 70) &
-                       (branches_ha[b'Pcharged'] > 0)))]
 
-Ntau_total = len(tau_ha) + len(tau_el) + len(tau_mu) + len(tau_tau)
-
-# plt.hist(pcharged_tau, color='r', bins=np.linspace(0, 100, 100))
-# plt.hist(pcharged_mu, color='g', bins=np.linspace(0, 100, 100), alpha=0.7)
-# plt.show()
+df.loc[(df['guess'] == 'u') & (df['E_ecal'] < 65) & (df['Pcharged'] > 0) &
+       (df['Pcharged'] < 70), 'guess'] = 't'
 
 if __name__ == "__main__":
-    print("Hadron Background:",
-          (len(hadron_el) + len(hadron_mu) + len(hadron_tau)) / Nhadron_total)
-    print("Hadron Acceptance loss:",
-          (len(ncharged_ha) - len(hadron_ha)) / len(ncharged_ha))
-    print("Muon Background:",
-          (len(muon_el) + len(muon_ha) + len(muon_tau)) / Nmuon_total)
-    print("Muon Acceptance loss:",
-          (len(e_ecal_mu) - len(muon_mu)) / len(e_ecal_mu))
-    print("Electron Background:",
-          (len(electron_mu) + len(electron_ha) + len(electron_tau)) /
-          Nelectron_total)
-    print("Electron Acceptance loss:",
-          (len(e_ecal_el) - len(electron_el)) / len(e_ecal_el))
-    print("Tau Background:",
-          (len(tau_mu) + len(tau_ha) + len(tau_el)) / Nelectron_total)
-    print("Tau Acceptance loss:",
-          (len(e_ecal_tau) - len(tau_tau)) / len(e_ecal_tau))
+    for key, name in [('h', 'Hadron'), ('m', 'Muon'), ('e', 'Electron'),
+                      ('t', 'Tau')]:
+        print(
+            name + " Background:",
+            sum((df['guess'] == key) & (df['ptype'] != key)) /
+            sum(df['guess'] == key))
+        print(name + " Acceptance loss:",
+              (sum(df['ptype'] == key) -
+               sum((df['ptype'] == key) & (df['guess'] == key))) /
+              sum(df['ptype'] == key))

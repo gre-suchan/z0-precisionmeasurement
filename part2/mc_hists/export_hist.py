@@ -1,9 +1,26 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from hist import ncharged_ha, ncharged_el, ncharged_mu, ncharged_tau, \
-    pcharged_ha, pcharged_el, pcharged_mu, pcharged_tau, \
-    e_ecal_ha, e_ecal_el, e_ecal_mu, e_ecal_tau, \
-    e_hcal_ha, e_hcal_el, e_hcal_mu, e_hcal_tau
+from hist import df
+
+ncharged_ha = df.loc[df['ptype'] == 'h', 'Ncharged']
+ncharged_el = df.loc[df['ptype'] == 'e', 'Ncharged']
+ncharged_mu = df.loc[df['ptype'] == 'm', 'Ncharged']
+ncharged_tau = df.loc[df['ptype'] == 't', 'Ncharged']
+
+pcharged_ha = df.loc[df['ptype'] == 'h', 'Pcharged']
+pcharged_el = df.loc[df['ptype'] == 'e', 'Pcharged']
+pcharged_mu = df.loc[df['ptype'] == 'm', 'Pcharged']
+pcharged_tau = df.loc[df['ptype'] == 't', 'Pcharged']
+
+e_ecal_ha = df.loc[df['ptype'] == 'h', 'E_ecal']
+e_ecal_el = df.loc[df['ptype'] == 'e', 'E_ecal']
+e_ecal_mu = df.loc[df['ptype'] == 'm', 'E_ecal']
+e_ecal_tau = df.loc[df['ptype'] == 't', 'E_ecal']
+
+e_hcal_ha = df.loc[df['ptype'] == 'h', 'E_hcal']
+e_hcal_el = df.loc[df['ptype'] == 'e', 'E_hcal']
+e_hcal_mu = df.loc[df['ptype'] == 'm', 'E_hcal']
+e_hcal_tau = df.loc[df['ptype'] == 't', 'E_hcal']
 
 PATH = "../../plot_data/part2/mc_hists/"
 
@@ -36,8 +53,8 @@ export_hist(ncharged_mu_hist, PATH + 'ncharged_mu.txt')
 export_hist(ncharged_tau_hist, PATH + 'ncharged_tau.txt')
 
 if __name__ == "__main__":
-    # plt.legend()
-    # plt.show()
+    plt.legend()
+    plt.show()
     plt.clf()
 
 e_ecal_hist_bin = np.linspace(0, 120, 60)
@@ -53,8 +70,8 @@ export_hist(e_ecal_mu_hist, PATH + 'e_ecal_mu.txt')
 export_hist(e_ecal_tau_hist, PATH + 'e_ecal_tau.txt')
 
 if __name__ == "__main__":
-    # plt.legend()
-    # plt.show()
+    plt.legend()
+    plt.show()
     plt.clf()
 
 e_hcal_hist_bin = np.linspace(0, 40, 20)
@@ -70,8 +87,8 @@ export_hist(e_hcal_mu_hist, PATH + 'e_hcal_mu.txt')
 export_hist(e_hcal_tau_hist, PATH + 'e_hcal_tau.txt')
 
 if __name__ == "__main__":
-    # plt.legend()
-    # plt.show()
+    plt.legend()
+    plt.show()
     plt.clf()
 
 pcharged_hist_bin = np.linspace(0, 120, 20)
