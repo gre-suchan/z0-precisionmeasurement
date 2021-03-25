@@ -1,7 +1,5 @@
 import uproot
 import awkward as ak
-import numpy as np
-import matplotlib.pyplot as plt
 
 # Path to the MC submodule
 path_data = '../../z0decayMC/'
@@ -65,12 +63,6 @@ hadron_tau = ncharged_tau[branches_tau[b'Ncharged'] >= 7]
 Nhadron_total = len(hadron_ha) + len(hadron_el) + \
     len(hadron_mu) + len(hadron_tau)
 
-print("Hadron Background:",
-      (len(hadron_el) + len(hadron_mu) + len(hadron_tau)) / Nhadron_total)
-
-print("Hadron Acceptance loss:",
-      (len(ncharged_ha) - len(hadron_ha)) / len(ncharged_ha))
-
 # Muon Cuts
 # Now we select the muons. For this we require that the energy in the
 # electromagnetic calorimeter E_Ecal is less than 10 while the scalar momentum
@@ -99,12 +91,6 @@ muon_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
 
 Nmuon_total = len(muon_ha) + len(muon_el) + len(muon_mu) + len(muon_tau)
 
-print("Muon Background:",
-      (len(muon_el) + len(muon_ha) + len(muon_tau)) / Nmuon_total)
-
-print("Muon Acceptance loss:",
-      (len(e_ecal_mu) - len(muon_mu)) / len(e_ecal_mu))
-
 # Electron Cuts
 # Events with a small number of charged particles but a high amount of energy
 # deposited in the E_Ecal are selected to be electrons. The Ncharged condition
@@ -120,13 +106,6 @@ electron_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
                         & (branches_ha[b'E_ecal'] >= 70)]
 Nelectron_total = len(electron_ha) + len(electron_el) + \
     len(electron_mu) + len(electron_tau)
-
-print("Electron Background:",
-      (len(electron_mu) + len(electron_ha) + len(electron_tau)) /
-      Nelectron_total)
-
-print("Electron Acceptance loss:",
-      (len(e_ecal_el) - len(electron_el)) / len(e_ecal_el))
 
 # Tau Cuts
 # Events with low amount of charged particles and medium (i. e. E_Ecal is in
@@ -159,12 +138,25 @@ tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
 
 Ntau_total = len(tau_ha) + len(tau_el) + len(tau_mu) + len(tau_tau)
 
-print("Tau Background:",
-      (len(tau_mu) + len(tau_ha) + len(tau_el)) / Nelectron_total)
+# plt.hist(pcharged_tau, color='r', bins=np.linspace(0, 100, 100))
+# plt.hist(pcharged_mu, color='g', bins=np.linspace(0, 100, 100), alpha=0.7)
+# plt.show()
 
-print("Tau Acceptance loss:",
-      (len(e_ecal_tau) - len(tau_tau)) / len(e_ecal_tau))
-
-plt.hist(pcharged_tau, color='r', bins=np.linspace(0, 100, 100))
-plt.hist(pcharged_mu, color='g', bins=np.linspace(0, 100, 100), alpha=0.7)
-plt.show()
+if __name__ == "__main__":
+    print("Hadron Background:",
+          (len(hadron_el) + len(hadron_mu) + len(hadron_tau)) / Nhadron_total)
+    print("Hadron Acceptance loss:",
+          (len(ncharged_ha) - len(hadron_ha)) / len(ncharged_ha))
+    print("Muon Background:",
+          (len(muon_el) + len(muon_ha) + len(muon_tau)) / Nmuon_total)
+    print("Muon Acceptance loss:",
+          (len(e_ecal_mu) - len(muon_mu)) / len(e_ecal_mu))
+    print("Electron Background:",
+          (len(electron_mu) + len(electron_ha) + len(electron_tau)) /
+          Nelectron_total)
+    print("Electron Acceptance loss:",
+          (len(e_ecal_el) - len(electron_el)) / len(e_ecal_el))
+    print("Tau Background:",
+          (len(tau_mu) + len(tau_ha) + len(tau_el)) / Nelectron_total)
+    print("Tau Acceptance loss:",
+          (len(e_ecal_tau) - len(tau_tau)) / len(e_ecal_tau))
