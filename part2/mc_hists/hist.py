@@ -3,9 +3,14 @@ import awkward as ak
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Path to the MC submodule
 path_data = '../../z0decayMC/'
 
-#Set up electron data
+# {{{ Data setup
+# Here we just read in the MC root files and name all the branches. This can
+# probably be done better in a pandas df.
+
+# Set up electron data
 file_el = uproot.open(path_data + 'ee.root')
 ttree_name = 'myTTree'
 file_el[ttree_name].keys()
@@ -16,7 +21,7 @@ pcharged_el = ak.to_numpy(branches_el[b'Pcharged'])
 e_ecal_el = ak.to_numpy(branches_el[b'E_ecal'])
 e_hcal_el = ak.to_numpy(branches_el[b'E_hcal'])
 
-#Set up tau data
+# Set up tau data
 file_tau = uproot.open(path_data + 'tt.root')
 ttree_name2 = 'myTTree'
 file_tau[ttree_name2].keys()
@@ -27,8 +32,7 @@ pcharged_tau = ak.to_numpy(branches_tau[b'Pcharged'])
 e_ecal_tau = ak.to_numpy(branches_tau[b'E_ecal'])
 e_hcal_tau = ak.to_numpy(branches_tau[b'E_hcal'])
 
-
-#Set up muon data
+# Set up muon data
 file_mu = uproot.open(path_data + 'mm.root')
 ttree_name3 = 'myTTree'
 file_mu[ttree_name3].keys()
@@ -39,7 +43,7 @@ pcharged_mu = ak.to_numpy(branches_mu[b'Pcharged'])
 e_ecal_mu = ak.to_numpy(branches_mu[b'E_ecal'])
 e_hcal_mu = ak.to_numpy(branches_mu[b'E_hcal'])
 
-#Set up hardron data
+# Set up hadron data
 file_ha = uproot.open(path_data + 'qq.root')
 ttree_name4 = 'myTTree'
 file_ha[ttree_name4].keys()
@@ -49,91 +53,118 @@ ncharged_ha = ak.to_numpy(branches_ha[b'Ncharged'])
 pcharged_ha = ak.to_numpy(branches_ha[b'Pcharged'])
 e_ecal_ha = ak.to_numpy(branches_ha[b'E_ecal'])
 e_hcal_ha = ak.to_numpy(branches_ha[b'E_hcal'])
+# }}}
 
+# Hadron Cuts
+# This is the first cut we make: All events with more than 7 charged tracks are
+# selected to be hadrons.
+hadron_ha = ncharged_ha[branches_ha[b'Ncharged'] >= 7]
+hadron_el = ncharged_el[branches_el[b'Ncharged'] >= 7]
+hadron_mu = ncharged_mu[branches_mu[b'Ncharged'] >= 7]
+hadron_tau = ncharged_tau[branches_tau[b'Ncharged'] >= 7]
+Nhadron_total = len(hadron_ha) + len(hadron_el) + \
+    len(hadron_mu) + len(hadron_tau)
 
-# Hardronen Cuts
-hardron_ha = ncharged_ha[branches_ha[b'Ncharged'] >= 7]
-hardron_el = ncharged_el[branches_el[b'Ncharged'] >= 7]
-hardron_mu = ncharged_mu[branches_mu[b'Ncharged'] >= 7]
-hardron_tau = ncharged_tau[branches_tau[b'Ncharged'] >= 7]
-Nhardron_gesamt = len(hardron_ha) + len(hardron_el) + len(hardron_mu) + len(hardron_tau)
+print("Hadron Background:",
+      (len(hadron_el) + len(hadron_mu) + len(hadron_tau)) / Nhadron_total)
 
-print("Hardronen Untergrund:", (len(hardron_el) + len(hardron_mu) + len(hardron_tau)
-) / Nhardron_gesamt)
-
-print("Hardronen Akzeptanzverlust:", (len(ncharged_ha) - len(hardron_ha)) / len(ncharged_ha))
+print("Hadron Acceptance loss:",
+      (len(ncharged_ha) - len(hadron_ha)) / len(ncharged_ha))
 
 # Muon Cuts
-muon_el = e_ecal_el[(branches_el[b'Ncharged'] < 7) & (branches_el[b'E_ecal'] <
-    10)
-        & ((branches_el[b'Pcharged'] >= 70) | (branches_el[b'Pcharged'] == 0))]
-muon_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7) & (branches_mu[b'E_ecal'] <
-    10)
-        & ((branches_mu[b'Pcharged'] >= 70) | (branches_mu[b'Pcharged'] == 0))]
-muon_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & (branches_tau[b'E_ecal']
-    < 10) & ((branches_tau[b'Pcharged'] >= 70) | (branches_tau[b'Pcharged'] ==
-        0))]
-muon_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)  & (branches_ha[b'E_ecal'] <
-    10)
-        & ((branches_ha[b'Pcharged'] >= 70) | (branches_ha[b'Pcharged'] == 0))]
+# Now we select the muons. For this we require that the energy in the
+# electromagnetic calorimeter E_Ecal is less than 10 while the scalar momentum
+# sum should exceed 70. Physically, these are events featuring charged
+# particles with high momenta which don't deposit a lot of energy in the
+# electromagnetic calorimeter. As some of the particles have a scalar momentum
+# sum of zero, we select those to be muons, too, if all the other requirements
+# were met. Currently, we don't know why the scalar momentum sum is 0 at all,
+# however, we know that those are about 90% Muons
+muon_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
+                    & (branches_el[b'E_ecal'] < 10) &
+                    ((branches_el[b'Pcharged'] >= 70) |
+                     (branches_el[b'Pcharged'] == 0))]
+muon_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
+                    & (branches_mu[b'E_ecal'] < 10) &
+                    ((branches_mu[b'Pcharged'] >= 70) |
+                     (branches_mu[b'Pcharged'] == 0))]
+muon_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
+                      & (branches_tau[b'E_ecal'] < 10) &
+                      ((branches_tau[b'Pcharged'] >= 70) |
+                       (branches_tau[b'Pcharged'] == 0))]
+muon_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
+                    & (branches_ha[b'E_ecal'] < 10) &
+                    ((branches_ha[b'Pcharged'] >= 70) |
+                     (branches_ha[b'Pcharged'] == 0))]
 
-Nmuon_gesamt = len(muon_ha) + len(muon_el) + len(muon_mu) + len(muon_tau)
+Nmuon_total = len(muon_ha) + len(muon_el) + len(muon_mu) + len(muon_tau)
 
-print("Muon Untergrund:", (len(muon_el) + len(muon_ha) + len(muon_tau)
-) / Nmuon_gesamt)
+print("Muon Background:",
+      (len(muon_el) + len(muon_ha) + len(muon_tau)) / Nmuon_total)
 
-print("Muon Akzeptanzverlust:", (len(e_ecal_mu[branches_mu[b'Pcharged'] > 0]) - len(muon_mu)) / len(e_ecal_mu[branches_mu[b'Pcharged'] > 0]))
+print("Muon Acceptance loss:",
+      (len(e_ecal_mu) - len(muon_mu)) / len(e_ecal_mu))
 
 # Electron Cuts
-electron_el = e_ecal_el[(branches_el[b'Ncharged'] < 7) & (branches_el[b'E_ecal'] >= 70)]
-electron_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7) & (branches_mu[b'E_ecal'] >= 70)]
-electron_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & (branches_tau[b'E_ecal'] >= 70)]
-electron_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)  & (branches_ha[b'E_ecal'] >= 70)]
-Nelectron_gesamt = len(electron_ha) + len(electron_el) + len(electron_mu) + len(electron_tau)
+# Events with a small number of charged particles but a high amount of energy
+# deposited in the E_Ecal are selected to be electrons. The Ncharged condition
+# rejects hadrons (cut 1) and the high E_Ecal value (which is our selection
+# criteria for electrons) automatically rejects muons (cut 2)
+electron_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
+                        & (branches_el[b'E_ecal'] >= 70)]
+electron_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
+                        & (branches_mu[b'E_ecal'] >= 70)]
+electron_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
+                          & (branches_tau[b'E_ecal'] >= 70)]
+electron_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
+                        & (branches_ha[b'E_ecal'] >= 70)]
+Nelectron_total = len(electron_ha) + len(electron_el) + \
+    len(electron_mu) + len(electron_tau)
 
-print("Electron Untergrund:", (len(electron_mu) + len(electron_ha) +
-    len(electron_tau)
-) / Nelectron_gesamt)
+print("Electron Background:",
+      (len(electron_mu) + len(electron_ha) + len(electron_tau)) /
+      Nelectron_total)
 
-print("Electron Akzeptanzverlust:", (len(e_ecal_el) - len(electron_el)) /
-        len(e_ecal_el))
+print("Electron Acceptance loss:",
+      (len(e_ecal_el) - len(electron_el)) / len(e_ecal_el))
 
 # Tau Cuts
-tau_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)  & (branches_el[b'E_ecal'] <
-    66) & (branches_el[b'E_ecal'] > 10)
-    & (branches_el[b'Pcharged'] <= 70) & (branches_el[b'Pcharged'] > 0)]
-tau_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)  & (branches_mu[b'E_ecal'] <
-    65) & (branches_mu[b'E_ecal'] > 10)
-    & (branches_mu[b'Pcharged'] <= 70) & (branches_mu[b'Pcharged'] > 0)]
-tau_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7) & (branches_tau[b'E_ecal']
-    < 65) & (branches_tau[b'E_ecal'] > 10)
-    & (branches_tau[b'Pcharged'] <= 70) & (branches_tau[b'Pcharged'] > 0)]
-tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7) & (branches_ha[b'E_ecal'] <
-    65) & (branches_ha[b'E_ecal'] > 10)
-    & (branches_ha[b'Pcharged'] <= 70) & (branches_ha[b'Pcharged'] > 0)]
+# Events with low amount of charged particles and medium (i. e. E_Ecal is in
+# (10 GeV, 66 GeV)) deposit the electromagnetic calorimeter are selected to be
+# taus. Muons (cut 2) are excluded via the momentum requirement; Hadrons (cut
+# 1) via Ncharged.
+# Note that particles with Ncharged < 7 and E_ecal in (66, 70)  are discarded
+# as we couldn't (yet?) think of a criterion that cleanly selects taus from
+# electrons.
+tau_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
+                   & (branches_el[b'E_ecal'] < 66) &
+                   (branches_el[b'E_ecal'] > 10)
+                   & (branches_el[b'Pcharged'] <= 70) &
+                   (branches_el[b'Pcharged'] > 0)]
+tau_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
+                   & (branches_mu[b'E_ecal'] < 65) &
+                   (branches_mu[b'E_ecal'] > 10)
+                   & (branches_mu[b'Pcharged'] <= 70) &
+                   (branches_mu[b'Pcharged'] > 0)]
+tau_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
+                     & (branches_tau[b'E_ecal'] < 65) &
+                     (branches_tau[b'E_ecal'] > 10)
+                     & (branches_tau[b'Pcharged'] <= 70) &
+                     (branches_tau[b'Pcharged'] > 0)]
+tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
+                   & (branches_ha[b'E_ecal'] < 65) &
+                   (branches_ha[b'E_ecal'] > 10)
+                   & (branches_ha[b'Pcharged'] <= 70) &
+                   (branches_ha[b'Pcharged'] > 0)]
 
-Ntau_gesamt = len(tau_ha) + len(tau_el) + len(tau_mu) + len(tau_tau)
+Ntau_total = len(tau_ha) + len(tau_el) + len(tau_mu) + len(tau_tau)
 
-print("Tau Untergrund:", (len(tau_mu) + len(tau_ha) +
-    len(tau_el)
-) / Nelectron_gesamt)
+print("Tau Background:",
+      (len(tau_mu) + len(tau_ha) + len(tau_el)) / Nelectron_total)
 
-print("Tau Akzeptanzverlust:", (len(e_ecal_tau) - len(tau_tau)) /
-        len(e_ecal_tau))
+print("Tau Acceptance loss:",
+      (len(e_ecal_tau) - len(tau_tau)) / len(e_ecal_tau))
 
-
-
-plt.hist(pcharged_tau,color='r', bins=np.linspace(0,100,100))
-plt.hist(pcharged_mu, color='g', bins=np.linspace(0,100,100), alpha=0.7)
+plt.hist(pcharged_tau, color='r', bins=np.linspace(0, 100, 100))
+plt.hist(pcharged_mu, color='g', bins=np.linspace(0, 100, 100), alpha=0.7)
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
