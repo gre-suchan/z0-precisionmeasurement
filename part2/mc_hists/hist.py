@@ -1,4 +1,4 @@
-import uproot
+import uproot3 as uproot
 import pandas as pd
 
 # Path to the MC submodule
@@ -48,7 +48,7 @@ df.loc[df['Ncharged'] >= 7, 'guess'] = 'h'
 # were met. Currently, we don't know why the scalar momentum sum is 0 at all,
 # however, we know that those are about 90% Muons
 
-df.loc[(df['guess'] == 'u') & (df['E_ecal'] < 10) &
+df.loc[(df['guess'] == 'u') & (df['E_ecal'] < 25) &
        ((df['Pcharged'] >= 70) | (df['Pcharged'] == 0)), 'guess'] = 'm'
 
 # Electron Cuts
@@ -66,7 +66,7 @@ df.loc[(df['guess'] == 'u') & (df['E_ecal'] >= 70), 'guess'] = 'e'
 # as we couldn't (yet?) think of a criterion that cleanly selects taus from
 # electrons.
 
-df.loc[(df['guess'] == 'u') & (df['E_ecal'] < 65) & (df['Pcharged'] > 0) &
+df.loc[(df['guess'] == 'u') & (df['E_ecal'] < 70) & (df['Pcharged'] > 0) &
        (df['Pcharged'] < 70), 'guess'] = 't'
 
 if __name__ == "__main__":
