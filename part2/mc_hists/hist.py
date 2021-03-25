@@ -2,6 +2,7 @@ import uproot
 import awkward as ak
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import norm
 
 # Path to the MC submodule
 path_data = '../../z0decayMC/'
@@ -137,25 +138,25 @@ print("Electron Acceptance loss:",
 # as we couldn't (yet?) think of a criterion that cleanly selects taus from
 # electrons.
 tau_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
-                   & (branches_el[b'E_ecal'] < 66) &
-                   (branches_el[b'E_ecal'] > 10)
-                   & (branches_el[b'Pcharged'] <= 70) &
-                   (branches_el[b'Pcharged'] > 0)]
+                   & (branches_el[b'E_ecal'] < 65) &
+                   ((branches_el[b'E_ecal'] > 20)
+                   | ((branches_el[b'Pcharged'] <= 70) & 
+                   (branches_el[b'Pcharged'] > 0)))]
 tau_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
                    & (branches_mu[b'E_ecal'] < 65) &
-                   (branches_mu[b'E_ecal'] > 10)
-                   & (branches_mu[b'Pcharged'] <= 70) &
-                   (branches_mu[b'Pcharged'] > 0)]
+                   ((branches_mu[b'E_ecal'] > 20)
+                   | ((branches_mu[b'Pcharged'] <= 70) &
+                   (branches_mu[b'Pcharged'] > 0)))]
 tau_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
                      & (branches_tau[b'E_ecal'] < 65) &
-                     (branches_tau[b'E_ecal'] > 10)
-                     & (branches_tau[b'Pcharged'] <= 70) &
-                     (branches_tau[b'Pcharged'] > 0)]
+                   ((branches_tau[b'E_ecal'] > 20)
+                   | ((branches_tau[b'Pcharged'] <= 70) & 
+                   (branches_tau[b'Pcharged'] > 0)))]
 tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
                    & (branches_ha[b'E_ecal'] < 65) &
-                   (branches_ha[b'E_ecal'] > 10)
-                   & (branches_ha[b'Pcharged'] <= 70) &
-                   (branches_ha[b'Pcharged'] > 0)]
+                   ((branches_ha[b'E_ecal'] > 20)
+                   | ((branches_ha[b'Pcharged'] <= 70) & 
+                   (branches_ha[b'Pcharged'] > 0)))]
 
 Ntau_total = len(tau_ha) + len(tau_el) + len(tau_mu) + len(tau_tau)
 
@@ -165,6 +166,19 @@ print("Tau Background:",
 print("Tau Acceptance loss:",
       (len(e_ecal_tau) - len(tau_tau)) / len(e_ecal_tau))
 
-plt.hist(pcharged_tau, color='r', bins=np.linspace(0, 100, 100))
-plt.hist(pcharged_mu, color='g', bins=np.linspace(0, 100, 100), alpha=0.7)
+angle_mu = ak.to_numpy(branches_mu[b'cos_thet'])
+angle_el = ak.to_numpy(branches_el[b'cos_thet'])
+
+#angle = angle_el[branches_el['cos_thet'] < 2]
+
+plt.subplot(2,2,1)
+plt.hist2d(e_ecal_el, pcharged_el, range=[[0,120],[0,120]])
+plt.subplot(2,2,2)
+plt.hist2d(e_ecal_mu, pcharged_mu, range=[[0,120],[0,120]])
+plt.subplot(2,2,3)
+plt.hist2d(e_ecal_tau, pcharged_tau, range=[[0,120],[0,120]])
+plt.subplot(2,2,4)
+
+plt.hist2d(e_ecal_ha, pcharged_ha, range=[[0,120],[0,120]])
+
 plt.show()
