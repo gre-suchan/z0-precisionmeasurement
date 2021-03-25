@@ -116,25 +116,25 @@ Nelectron_total = len(electron_ha) + len(electron_el) + \
 # as we couldn't (yet?) think of a criterion that cleanly selects taus from
 # electrons.
 tau_el = e_ecal_el[(branches_el[b'Ncharged'] < 7)
-                   & (branches_el[b'E_ecal'] < 66) &
-                   (branches_el[b'E_ecal'] > 10)
-                   & (branches_el[b'Pcharged'] <= 70) &
-                   (branches_el[b'Pcharged'] > 0)]
+                   & (branches_el[b'E_ecal'] < 65) &
+                   ((branches_el[b'E_ecal'] > 20)
+                    | ((branches_el[b'Pcharged'] <= 70) &
+                       (branches_el[b'Pcharged'] > 0)))]
 tau_mu = e_ecal_mu[(branches_mu[b'Ncharged'] < 7)
                    & (branches_mu[b'E_ecal'] < 65) &
-                   (branches_mu[b'E_ecal'] > 10)
-                   & (branches_mu[b'Pcharged'] <= 70) &
-                   (branches_mu[b'Pcharged'] > 0)]
+                   ((branches_mu[b'E_ecal'] > 20)
+                    | ((branches_mu[b'Pcharged'] <= 70) &
+                       (branches_mu[b'Pcharged'] > 0)))]
 tau_tau = e_ecal_tau[(branches_tau[b'Ncharged'] < 7)
                      & (branches_tau[b'E_ecal'] < 65) &
-                     (branches_tau[b'E_ecal'] > 10)
-                     & (branches_tau[b'Pcharged'] <= 70) &
-                     (branches_tau[b'Pcharged'] > 0)]
+                     ((branches_tau[b'E_ecal'] > 20)
+                      | ((branches_tau[b'Pcharged'] <= 70) &
+                         (branches_tau[b'Pcharged'] > 0)))]
 tau_ha = e_ecal_ha[(branches_ha[b'Ncharged'] < 7)
                    & (branches_ha[b'E_ecal'] < 65) &
-                   (branches_ha[b'E_ecal'] > 10)
-                   & (branches_ha[b'Pcharged'] <= 70) &
-                   (branches_ha[b'Pcharged'] > 0)]
+                   ((branches_ha[b'E_ecal'] > 20)
+                    | ((branches_ha[b'Pcharged'] <= 70) &
+                       (branches_ha[b'Pcharged'] > 0)))]
 
 Ntau_total = len(tau_ha) + len(tau_el) + len(tau_mu) + len(tau_tau)
 
