@@ -19,7 +19,7 @@ def t_channel(x, B, C):
     return (B / (1 - x)**2 + C)
 
 # Bined data.
-angle_bined, bins = np.histogram(angle, bins=np.linspace(-1, 0.8, 1000))
+angle_bined, bins = np.histogram(angle, bins=np.linspace(-0.9, 0.9, 30))
 
 # Calculate bin centers
 bincenters = np.array([0.5 * (bins[i] + bins[i+1]) for i in
@@ -27,7 +27,7 @@ bincenters = np.array([0.5 * (bins[i] + bins[i+1]) for i in
 
 # fit using curve_fit
 popt, pcov = curve_fit(fit_function, xdata = bincenters, ydata = angle_bined,
-        p0 = [1000, 100, 1])
+        p0 = [10, 1, 0])
 
 # Print fit parameters
 print(popt)
@@ -42,6 +42,7 @@ plt.bar(bincenters, angle_bined, width = bins[1] - bins[0], color = 'navy',
         label = r'Histogram entries')
 plt.plot(xspace, fit_function(xspace, *popt), color = 'darkorange', linewidth
         = 2.5, label = r'Fitted function')
+
 plt.plot(xspace, s_channel(xspace, popt[0], popt[2]), color = 'b') 
 plt.plot(xspace, t_channel(xspace, popt[1], popt[2]), color = 'g') 
 
