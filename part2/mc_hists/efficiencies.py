@@ -1,5 +1,5 @@
 import numpy as np
-from hist import df
+from hist import mc_df as df
 
 ptypes = ['e', 'm', 't', 'h']
 

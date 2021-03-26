@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-from hist import df
+from hist import mc_df as df
 
 # Test fit for the cos_thet distribution of the electrons.
 angle = df.loc[(df['ptype'] == 'e') & (df['cos_thet'] < 2), 'cos_thet']
