@@ -87,3 +87,14 @@ efficiency = (rootfunction_A(upper_cut, popt[0]) - rootfunction_A(lower_cut,
         popt[1]) - rootfunction_A(lower_cut, popt[0]) -
         rootfunction_B(lower_cut, popt[1]))
 print(efficiency)
+
+c = (upper_cut**3 / 3 + upper_cut - lower_cut**3 /3 - lower_cut)
+d = 1 / (1 - upper_cut) - 1 / (1 - lower_cut)
+
+gradient = np.array([c * d / (c * popt[0] + d * popt[1])**2 * popt[1], - c * d
+    / (c * popt[0] + d * popt[1])**2
+        * popt[0]])
+
+err_efficiency = np.sqrt(gradient.dot(pcov.dot(gradient)))
+
+print(err_efficiency)
