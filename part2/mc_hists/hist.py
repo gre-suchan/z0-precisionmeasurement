@@ -72,11 +72,20 @@ df.loc[(df['guess'] == 'u') & (df['E_ecal'] < 70) & (df['Pcharged'] > 0) &
 if __name__ == "__main__":
     for key, name in [('h', 'Hadron'), ('m', 'Muon'), ('e', 'Electron'),
                       ('t', 'Tau')]:
+
+        print(
+            name + " Cleanliness:",
+            sum((df['ptype'] == key) & (df['guess'] == key)) /
+            sum(df['guess'] == key))
         print(
             name + " Background:",
             sum((df['guess'] == key) & (df['ptype'] != key)) /
             sum(df['guess'] == key))
-        print(name + " Acceptance loss:",
-              (sum(df['ptype'] == key) -
-               sum((df['ptype'] == key) & (df['guess'] == key))) /
-              sum(df['ptype'] == key))
+        print(
+            name + " Acceptance loss:",
+            sum((df['ptype'] == key) & (df['guess'] != key)) /
+            sum(df['ptype'] == key))
+        print(
+            name + " Efficiency:",
+            sum((df['ptype'] == key) & (df['guess'] == key)) /
+            sum(df['ptype'] == key))
