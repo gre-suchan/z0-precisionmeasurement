@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from hist import mc_df as df
+from cuts import mc_df as df
 
 ncharged_ha = df.loc[df['ptype'] == 'h', 'Ncharged']
 ncharged_el = df.loc[df['ptype'] == 'e', 'Ncharged']

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from hist import mc_df as df
+from cuts import mc_df as df
 # from hist import pcharged_ha, pcharged_el, pcharged_mu, pcharged_tau, \
 #     e_ecal_ha, e_ecal_el, e_ecal_mu, e_ecal_tau, branches_mu, branches_el
 
