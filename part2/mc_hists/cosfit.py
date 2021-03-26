@@ -66,19 +66,24 @@ plt.legend()
 plt.show()
 
 
-#### Integrals to calculate cuts
+#### Integrals to calculate cuts ####
+# Rootfunction of the s channel.
 def rootfunction_A (x, A):
     return (A * (x**3 / 3 + x))
 
+# Rootfunction of the t channel.
 def rootfunction_B(x, B):
     return (B / (1 - x))
 
-upper_cut = 0.5
+# Cuts to get just the s channel electrons
+upper_cut = 0.
 lower_cut = -0.9
 
+# Efficiency of the cut, calculated by dividing the integral of the s-channel
+# function for the given interval with the integral of the over all function
+# for the given interval.
 efficiency = (rootfunction_A(upper_cut, popt[0]) - rootfunction_A(lower_cut,
     popt[0]))/(rootfunction_A(upper_cut, popt[0]) + rootfunction_B(upper_cut,
         popt[1]) - rootfunction_A(lower_cut, popt[0]) -
         rootfunction_B(lower_cut, popt[1]))
-
 print(efficiency)
