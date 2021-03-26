@@ -4,14 +4,16 @@ from hist import df
 ptypes = ['e', 'm', 't', 'h']
 
 mat = np.zeros((4, 4))
+err_mat = np.zeros((4, 4))
 
 for i, p1 in enumerate(ptypes):
     for j, p2 in enumerate(ptypes):
-        if i == j:
-            mat[i, j] = sum((df['ptype'] == p1) & (df['guess'] == p1)) / \
-                sum(df['ptype'] == p1)
-        else:
-            mat[i, j] = sum((df['guess'] == p1) & (df['ptype'] == p2)) / \
-                sum(df['guess'] == p1)
+        num = sum((df['guess'] == p2) & (df['ptype'] == p1))
+        denom = sum(df['ptype'] == p2)
+        mat[i, j] = num / denom
+        err_mat[i, j] = np.sqrt(num / denom**2 + num**2 / denom**3)
 
-print(mat)
+
+if __name__ == "__main__":
+    print(mat)
+    print(err_mat)
