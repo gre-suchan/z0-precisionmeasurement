@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from efficiencies import mat, err_mat
 
-ntoy = 50000
+ntoy = 5000000
 
 # Create numpy matrix of list to append elements of inverted toy matrices
 # inverse_toys = np.empty((4, 4))
