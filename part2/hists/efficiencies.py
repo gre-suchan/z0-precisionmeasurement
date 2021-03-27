@@ -15,12 +15,10 @@ for i, p1 in enumerate(ptypes):
         mat[i, j] = num / denom
         err_mat[i, j] = np.sqrt(num / denom**2 + num**2 / denom**3)
 
-for i in range(0,4):
-    c = s_efficiency * mat[i, 0]
-    err_mat[i, 0] = c * (err_sefficiency / s_efficiency + 
-            err_mat[i, 0] / mat[i, 0])
-    mat[i, 0] = c
-
+c = s_efficiency * mat[:, 0]
+err_mat[:, 0] = \
+    c * (err_sefficiency / s_efficiency + err_mat[:, 0] / mat[:, 0])
+mat[:, 0] = c
 
 if __name__ == "__main__":
     print(mat)
