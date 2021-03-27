@@ -1,5 +1,7 @@
 import pandas as pd
 from cuts import mc_df as df
+from cosfit import upper_cut as upper_cut
+from cosfit import lower_cut as lower_cut 
 
 def apply_stcut(data: pd.DataFrame):
     """Apply the cuts for the s channel to the otherwise already cuted data."""
@@ -11,7 +13,7 @@ def apply_stcut(data: pd.DataFrame):
     # which hopefully is a convenient tradeoff between efficiency and data
     # loss.
     data.loc[(data['s_channel'] == 'u') & (data['guess'] == 'e') &
-            (data['cos_thet'] >= -0.9) & (data['cos_thet'] <= 0), 's_channel'] = 's'
+            (data['cos_thet'] >= lower_cut) & (data['cos_thet'] <= upper_cut), 's_channel'] = 's'
 
 final_df = df
 apply_stcut(final_df)
