@@ -52,20 +52,21 @@ popt, pcov = curve_fit(fit_function,
 # xvalues for the plotting
 xspace = np.linspace(-1, 1, 10000, endpoint=False)
 
-# the plots
-plt.hist(angle, bins=bins)
+if __name__ == "__main__":
+    # the plots
+    plt.hist(angle, bins=bins)
 
-plt.plot(xspace,
-         fit_function(xspace, *popt),
-         color='darkorange',
-         linewidth=2.5,
-         label=r'Fitted function')
+    plt.plot(xspace,
+             fit_function(xspace, *popt),
+             color='darkorange',
+             linewidth=2.5,
+             label=r'Fitted function')
 
-plt.plot(xspace, s_channel(xspace, popt[0]), color='b', label='s')
-plt.plot(xspace, t_channel(xspace, popt[1]), color='g', label='t')
+    plt.plot(xspace, s_channel(xspace, popt[0]), color='b', label='s')
+    plt.plot(xspace, t_channel(xspace, popt[1]), color='g', label='t')
 
-plt.ylim(0, 1.1 * max(angle_binned))
-plt.legend()
+    plt.ylim(0, 1.1 * max(angle_binned))
+    plt.legend()
 
 # Cuts to get just the s channel electrons
 upper_cut = 0.
