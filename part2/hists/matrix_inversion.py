@@ -79,7 +79,17 @@ for j in range(0, 4, 1):
         inverse_means[j, k] = np.mean(inverse_toys[j, k, :])
         inverse_errors[j, k] = np.std(inverse_toys[j, k, :])
 
+inv = np.linalg.inv(mat)
+exact_inverse_errors = np.zeros((4, 4))
+for alpha in range(4):
+    for beta in range(4):
+        exact_inverse_errors[alpha, beta] = np.sqrt(
+            sum(inv[alpha, i]**2 * err_mat[i, j]**2 * inv[j, beta]**2
+                for i in range(4) for j in range(4)))
+
 if __name__ == "__main__":
     print(f"Erros for the inverse matrix:\n{inverse_errors}")
     print(f"Means for the inverse matrix:\n{inverse_means}")
     plt.show()
+    print("Exact solution")
+    print(exact_inverse_errors)
