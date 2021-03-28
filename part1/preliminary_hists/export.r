@@ -13,19 +13,26 @@ data$particle <- factor(rep(c("h", "e", "m", "t"), each=50),
                         levels=c("h", "e", "m", "t", "u"))
 data$tec.ratio <- data$p.charged / data$e.ecal
 
+bin.and.hist <- function (df, bins, column) {
+    ret <- as.data.frame(
+                         do.call(cbind,
+                                 tapply(df[[column]],
+                                        data$particle,
+                                        . %>% tapply(., cut(., breaks=bins), length))))
+
+    ret$min <- bins[-length(bins)]
+    ret$max <- bins[-1]
+    ret$mid <- (ret$max - ret$min) / 2
+    ret[is.na(ret)] <- 0
+    return(ret)
+}
+
 # This is the binning of the n.charged observable
 nchr.brks <- seq(0, 80, by=5)
-as.data.frame(
-              do.call(cbind,
-                      tapply(data$n.charged,
-                             data$particle,
-                             . %>% tapply(., cut(., breaks=nchr.brks), length)))) -> hist.df
-
-hist.df$min <- nchr.brks[-length(nchr.brks)]
-hist.df$max <- nchr.brks[-1]
-hist.df[is.na(hist.df)] <- 0
+hist.df <- bin.and.hist(data, nchr.brks, "n.charged")
 
 write.csv(file="../../plot_data/part1/hists/n.charged.csv",
+          row.names=F,
           hist.df)
 
 tex.brks <- seq(0, 75, by=2)
@@ -34,30 +41,16 @@ ggplot(data=data[data$particle != "h", ],
     geom_histogram(alpha=.5, breaks=tex.brks, position='identity', color='black') +
     theme_minimal()
 
-as.data.frame(
-              do.call(cbind,
-                      tapply(data$tec.ratio,
-                             data$particle,
-                             . %>% tapply(., cut(., breaks=tex.brks), length)))) -> hist.df2
-
-hist.df2$min <- tex.brks[-length(tex.brks)]
-hist.df2$max <- tex.brks[-1]
-hist.df2[is.na(hist.df2)] <- 0
+hist.df2 <- bin.and.hist(data, tex.brks, "tec.ratio")
 
 write.csv(file="../../plot_data/part1/hists/tec.ratio.csv",
+          row.names=F,
           hist.df2)
 
 ecal.brks <- seq(0, 125, by=5)
-as.data.frame(
-              do.call(cbind,
-                      tapply(data$e.ecal,
-                             data$particle,
-                             . %>% tapply(., cut(., breaks=ecal.brks), length)))) -> hist.df3
-
-hist.df3$min <- ecal.brks[-length(ecal.brks)]
-hist.df3$max <- ecal.brks[-1]
-hist.df3[is.na(hist.df3)] <- 0
+hist.df3 <- bin.and.hist(data, ecal.brks, "e.ecal")
 
 write.csv(file="../../plot_data/part1/hists/ecal.csv",
+          row.names=F,
           hist.df3)
 
