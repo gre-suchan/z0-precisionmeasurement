@@ -47,8 +47,10 @@ fig.subplots_adjust(left=None,
 axes = [[plt.subplot(4, 4, 1 + j * 4 + k) for k in range(0, 4)]
         for j in range(0, 4)]
 
+hists = list()
 # Fill histograms for each inverted matrix coefficient:
 for j in range(0, 4, 1):
+    hists.append(list())
     for k in range(0, 4, 1):
         # These are the ML estimators for a gaussian distribution
         mean = np.mean(inverse_toys[j, k, :])
@@ -58,16 +60,17 @@ for j in range(0, 4, 1):
         # the 4 x 4 matrix
         hbins, hedges, _ = axes[j][k].hist(inverse_toys[j, k, :],
                                            bins=20,
-                                           density=True,
                                            range=(mean - 4 * sd,
                                                   mean + 4 * sd),
                                            histtype='step',
                                            linewidth=2,
                                            label=f'toyhist{j}{k}')
         axes[j][k].legend()
+        hists[j].append(np.array([hbins, hedges, _], dtype=object))
 
         # Instead of a curve_fit, we just use the mean estimator from above
-        coeffs = (1 / np.sqrt(2 * np.pi * sd**2), mean, sd)
+        scale = 0.997 * ntoy * 8 * sd / 20 * 1 / np.sqrt(2 * np.pi * sd**2)
+        coeffs = (scale, mean, sd)
 
         # Now plot the gaussian using our estimators
         xspace = np.linspace(hedges[0], hedges[-1], 150)
