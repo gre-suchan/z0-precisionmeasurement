@@ -3,9 +3,11 @@ Exports the efficiency matrix and their errors to a .txt file.
 Note that running this file probably changes the .txt files indexed in the repo
 so make sure not to commit changes to the .txt files
 """
-import numpy as np
 from os import path
-from matrix_inversion import hists, inverse_means, inverse_errors
+import numpy as np
+from matrix_inversion import toy_experiments
+
+inverse_means, inverse_errors, hists = toy_experiments()
 
 PATH = '../../plot_data/part2/efficiencies/'
 assert path.exists(PATH)
