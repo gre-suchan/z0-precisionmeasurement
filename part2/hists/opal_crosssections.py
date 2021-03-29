@@ -1,5 +1,5 @@
 from opal_import import get_luminosity_dataframe
-from cuts import opal_df
+from s_t_channel import opal_df
 from matrix_inversion import get_cached_inverse
 import pandas as pd
 import numpy as np
@@ -19,8 +19,9 @@ big_df = pd.merge_asof(opal_df,
                        left_on='sqrt_s',
                        right_on='meanenergy',
                        direction='nearest')
-# Remove unknowns
+# Remove unknowns and electron t channel
 big_df = big_df.loc[big_df['guess'] != 'u']
+big_df = big_df.loc[(big_df['guess'] != 'e') | (big_df['s_channel'] == 's')]
 # Calculate an 'error' on the mean energy by the nearest merging
 meanenergy_err = big_df.groupby('meanenergy').agg('std')['sqrt_s']
 # Now, group by the rows meanenergy and guess

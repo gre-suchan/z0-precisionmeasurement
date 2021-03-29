@@ -1,5 +1,5 @@
 import pandas as pd
-from cuts import mc_df as df
+from cuts import mc_df as df, opal_df
 from cosfit import upper_cut
 from cosfit import lower_cut
 
@@ -19,6 +19,7 @@ def apply_stcut(data: pd.DataFrame):
 
 final_df = df
 apply_stcut(final_df)
+apply_stcut(opal_df)
 
 if __name__ == "__main__":
     print(final_df)
