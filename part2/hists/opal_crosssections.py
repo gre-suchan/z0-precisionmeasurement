@@ -46,6 +46,10 @@ df['N'] = big_E_inv.dot(df.NTilde)
 
 # ...and divide by the luminosity to obtain the total cross section
 df['crosssection'] = df['N'] / df['lumi']
+# This is the correction of the cross section
+crosssection_corr = np.repeat([0.09, 0.20, 0.36, 0.52, 0.22, -0.01, -0.08], 4)
+crosssection_corr[3::4] = np.array([2.0, 4.3, 7.7, 10.8, 4.7, -0.2, -1.6])
+df['crosssection'] += crosssection_corr
 
 # Now onto the errors. Luckily, as there are no covariances, the error can be
 # propagated easily via matrix multiplication
@@ -61,5 +65,6 @@ for ptype in ['e', 'm', 't', 'h']:
                                             index=False)
 
 if __name__ == "__main__":
-    print(df[['meanenergy', 'meanenergy_err', 'crosssection',
-              'crosssection_err']].loc[df['guess'] == 'e'])
+    print(df[[
+        'meanenergy', 'meanenergy_err', 'crosssection', 'crosssection_err'
+    ]].loc[df['guess'] == 'e'])
