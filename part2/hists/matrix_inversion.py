@@ -91,8 +91,10 @@ for alpha in range(4):
                 for i in range(4) for j in range(4)))
 
 if __name__ == "__main__":
-    print(f"Erros for the inverse matrix:\n{inverse_errors}")
     print(f"Means for the inverse matrix:\n{inverse_means}")
+    print(f"Erros for the inverse matrix:\n{inverse_errors}")
     plt.show()
+    print("Inverse")
+    print(np.linalg.inv(mat))
     print("Exact solution")
     print(exact_inverse_errors)
