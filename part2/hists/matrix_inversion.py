@@ -1,3 +1,5 @@
+from os import mkdir
+from os.path import isdir
 import numpy as np
 import matplotlib.pyplot as plt
 from efficiencies import mat, err_mat
@@ -82,6 +84,8 @@ for j in range(0, 4, 1):
         inverse_means[j, k] = np.mean(inverse_toys[j, k, :])
         inverse_errors[j, k] = np.std(inverse_toys[j, k, :])
 
+# For comparison: Calculate the errors using the exact method from the paper
+# (should be eq.s 7 and 9)
 inv = np.linalg.inv(mat)
 exact_inverse_errors = np.zeros((4, 4))
 for alpha in range(4):
@@ -89,6 +93,13 @@ for alpha in range(4):
         exact_inverse_errors[alpha, beta] = np.sqrt(
             sum(inv[alpha, i]**2 * err_mat[i, j]**2 * inv[j, beta]**2
                 for i in range(4) for j in range(4)))
+
+# Dirty data caching
+cache_path = '../cache/'
+if not isdir(cache_path):
+    mkdir(cache_path)
+np.savetxt(cache_path + 'E_inverse.txt', np.linalg.inv(mat))
+np.savetxt(cache_path + 'E_inverse_errors.txt', inverse_errors)
 
 if __name__ == "__main__":
     print(f"Means for the inverse matrix:\n{inverse_means}")
