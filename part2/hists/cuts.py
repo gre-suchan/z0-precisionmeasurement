@@ -1,5 +1,6 @@
 import pandas as pd
 from mc_import import get_mc_dataframe
+from opal_import import get_opal_dataframe
 
 
 def apply_cuts(data: pd.DataFrame):
@@ -46,7 +47,9 @@ def apply_cuts(data: pd.DataFrame):
 
 
 mc_df = get_mc_dataframe()
+opal_df = get_opal_dataframe()
 apply_cuts(mc_df)
+apply_cuts(opal_df)
 
 if __name__ == "__main__":
     for key, name in [('h', 'Hadron'), ('m', 'Muon'), ('e', 'Electron'),
