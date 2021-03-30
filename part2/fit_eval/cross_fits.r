@@ -156,7 +156,7 @@ fit.df[-c(4), c('sigma.peak.ratio', 'sigma.peak.ratio.err',
                 'branching.ratio', 'branching.ratio.err')]
 
 # Test if the two ratio samples stem from the same distribution
-ks.test(drop_units(fit.df$sigma.peak.ratio)[1:3],
-        drop_units(fit.df$branching.ratio)[1:3])
-t.test(drop_units(fit.df$sigma.peak.ratio)[1:3],
-       drop_units(fit.df$branching.ratio)[1:3])
+fit.df[-c(4), ] %$% ks.test(drop_units(sigma.peak.ratio),
+                            drop_units(branching.ratio))
+fit.df[-c(4), ] %$% t.test(drop_units(sigma.peak.ratio),
+                           drop_units(branching.ratio))
