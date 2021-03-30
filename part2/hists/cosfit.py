@@ -90,6 +90,14 @@ gradient = np.array([
 
 err_efficiency = np.sqrt(gradient.dot(pcov.dot(gradient)))
 
+# Calculate the s channel correction factor. As our selection is extremely
+# picky, we miss many s channel electrons so we have to correct by the ratio of
+# the s channel primitive over the whole region divided by the integral over
+# the narrow (picky) region
+s_channel_correction = \
+    ((primitive_A(1, popt[0]) - primitive_A(-1, popt[0]))
+     / (primitive_A(upper_cut, popt[0]) - primitive_A(lower_cut, popt[0])))
+
 if __name__ == "__main__":
     # Print fit parameters
     print(popt)

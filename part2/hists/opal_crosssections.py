@@ -1,5 +1,6 @@
 from opal_import import get_luminosity_dataframe
 from s_t_channel import opal_df
+from cosfit import s_channel_correction
 from matrix_inversion import get_cached_inverse
 import pandas as pd
 import numpy as np
@@ -27,6 +28,9 @@ meanenergy_err = big_df.groupby('meanenergy').agg('std')['sqrt_s']
 # Now, group by the rows meanenergy and guess
 df = big_df.groupby(['meanenergy', 'guess', 'lumi', 'stat', 'sys',
                      'all']).size().reset_index(name='NTilde')
+
+# Multiply the calculated event numbers by the s-channel correction.
+df.loc[df['guess'] == 'e', 'NTilde'] *= s_channel_correction
 # 'Merge' the meanenergy_err from the right
 df['meanenergy_err'] = meanenergy_err.values.repeat(4)
 
