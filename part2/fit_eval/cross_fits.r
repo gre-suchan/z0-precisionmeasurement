@@ -1,7 +1,7 @@
 library(dplyr)
 library(magrittr)
 library(units)
-library(functional)
+
 c.n <- c("sqrt.s","sqrt.s.err","sigma","sigma.err")
 df.e <- read.csv("../../plot_data/part2/crosssections/e.csv", col.names=c.n)
 df.m <- read.csv("../../plot_data/part2/crosssections/m.csv", col.names=c.n)
