@@ -1,2 +1,8 @@
 __pycache__/
 cache/
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.pdf
+*.synctex.gz
