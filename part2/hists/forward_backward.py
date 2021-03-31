@@ -1,73 +1,88 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from opal_import import get_luminosity_dataframe
 from mc_import import get_mc_dataframe
 from cuts import opal_df
 from matrix_inversion import get_cached_inverse
 
 
 # Read in the luminosity data
-lum = pd.read_csv("../../z0DecayData/lumi_files/daten_3.csv")
-#print(lum)
-# Corrections for the forward-backward asymmetry.
-rad_corr = [0.021512, 0.019262, 0.016713, 0.018293, 0.030286, 0.062196, 0.093850]
+lum = get_luminosity_dataframe()
+# Corrections for the forward-backward asymmetry (no units)
+rad_corr = [0.021512, 0.019262, 0.016713, 0.018293, 0.030286, 0.062196,
+            0.093850]
 # Inversed efficiency matrix and the errors.
 mat_eff, mat_err = get_cached_inverse()
 
+
 # Function to calculate the forward-backward asymmetrie for given forward and
 # backward cross sections.
-def A_FB(sig_b, sig_f):
-    return (sig_f - sig_b) / (sig_f + sig_b)
+def A_FB(N_f, N_b):
+    return (N_f - N_b) / (N_f + N_b)
+
+
 # Error calculation of the forward-backward asymmetrie.
-def err_afb(err_sigb, err_sigf, sig_b, sig_f):
-    return (A_FB(sig_b, sig_f) * np.sqrt((err_sigf / (sig_f + sig_b))**2 +
-        (err_sigb / (sig_f + sig_b))**2 + ((sig_f - sig_b) / (sig_f + sig_b)**2
-        * err_sigb)**2 + ((sig_f - sig_b) / (sig_f + sig_b)**2 * err_sigf)**2))
+def err_afb(N_f_err, N_b_err, N_f, N_b):
+    return (A_FB(N_b, N_f) * np.sqrt((N_f_err / (N_f + N_b))**2 +
+            (N_b_err / (N_f + N_b))**2 + ((N_f - N_b) / (N_f + N_b)**2
+            * N_b_err)**2 + ((N_f - N_b) / (N_f + N_b)**2 * N_f_err)**2))
+
+
 # Function to calculate the sin squared of the weinberg angle out of the
 # forward-backward asymmetrie.
 def sin_W(A_FB):
     return 0.25 * (1 - np.sqrt(np.abs(A_FB) / 3))
+
+
 def err_sinW(sin_W, A_FB, err_AFB):
     return (sin_W * np.sqrt((err_AFB / (8 * np.sqrt(3 * np.abs(A_FB))))**2))
+
+
 # Function to calculate the errors for the real event number.
 def Num_error(N, eff, eff_err):
     return (N * eff_err + np.sqrt(N) * eff)
 
-#### MC Data ##################################################################
+
+# MC Data ##################################################################
 
 # Initializing the mc dataframe.
-M_df = get_mc_dataframe()
+MC_df = get_mc_dataframe()
 
 # Cutting out the events of the forward and backward hemisphere respectly.
-M_muonb = M_df.loc[(M_df['ptype'] == 'm') & (M_df['cos_thet'] < 0) &
-                      (M_df['cos_thet'] > -1)]
-M_muonf = M_df.loc[(M_df['ptype'] == 'm') & (M_df['cos_thet'] < 1) &
-                      (M_df['cos_thet'] > 0)]
+MC_muonb = MC_df.loc[(MC_df['ptype'] == 'm') & (MC_df['cos_thet'] < 0) &
+                     (MC_df['cos_thet'] > -1)]
+MC_muonf = MC_df.loc[(MC_df['ptype'] == 'm') & (MC_df['cos_thet'] < 1) &
+                     (MC_df['cos_thet'] > 0)]
 
 # Calculating the forward and backward cross section using the luminosity for
 # the nearest beam energy to the one used in the mc simulations.
-M_sigb = (1 / lum['lumi'][3]) * len(M_muonb)
-M_sigf = (1 / lum['lumi'][3]) * len(M_muonf)
-Merr_sigb = M_sigb / lum['lumi'][3]  * lum['all'][3]
-Merr_sigf = M_sigf / lum['lumi'][3]  * lum['all'][3]
+# Number of muon events in the forward region
+MC_N_f = len(MC_muonf)
+# Number of muon events in the backward region
+MC_N_b = len(MC_muonb)
+# Estimate the error on both using the square root (this is a counting
+# experiment with a sufficiently low error rate)
+MC_N_f_err = np.sqrt(MC_N_f)
+MC_N_b_err = np.sqrt(MC_N_b)
 
 # Calculating the forward-backward asymmetry for the mc data.
-M_afb = A_FB(M_sigb, M_sigf) + rad_corr[3]
-Merr_afb = err_afb(Merr_sigb, Merr_sigf, M_sigb, M_sigf)
+MC_afb = A_FB(MC_N_f, MC_N_b) + rad_corr[3]
+MC_afb_err = err_afb(MC_N_f_err, MC_N_b_err, MC_N_f, MC_N_b)
 # Calculatin the sin squared of the weinberg angle
-M_sin = sin_W(M_afb)
-Merr_sin = err_sinW(M_sin, M_afb, Merr_afb)
+MC_sin = sin_W(MC_afb)
+MC_sin_err = err_sinW(MC_sin, MC_afb, MC_afb_err)
 
 if __name__ == "__main__":
     # Printing the MC data.
     print("MC data:")
     print("A_FB, error A_FB, sin(theta_W)**2, err sin")
-    print(M_afb, Merr_afb, M_sin, Merr_sin)
+    print(MC_afb, MC_afb_err, MC_sin, MC_sin_err)
 
 #### OPAL data ################################################################
 
 # Sorting the opal data into forward and backward data and the different beam
-# energies, by the new collumns hemisphere and lum_beam. 
+# energies, by the new collumns hemisphere and lum_beam.
 opal_df['hemisphere'] = 'u'
 opal_df['lum_beam'] = 'u'
 
