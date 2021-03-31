@@ -45,6 +45,7 @@ opal_df = opal_df2.copy()  # I hate pandas (copying is necessary)
 lum = get_luminosity_dataframe()
 # Inversed efficiency matrix and the errors.
 E_inv, E_inv_err = get_cached_inverse()
+path_data = '../../plot_data/part2/forward_backward/'
 
 # MC Data ##################################################################
 
@@ -137,6 +138,9 @@ df = df.assign(A_FB=A_FB(df[('N', 'f')], df[('N', 'b')]) + rad_corr,
                                  df[('N', 'f')], df[('N', 'b')]))
 df = df.assign(sin_W=sin_W(df['A_FB']))
 df = df.assign(sin_W_err=sin_W_err(df['sin_W'], df['A_FB'], df['A_FB_err']))
+df['meanenergy_err'] = meanenergy_err
+
+df.to_csv(path_data + "A_FB.csv")
 
 if __name__ == "__main__":
     print(df)

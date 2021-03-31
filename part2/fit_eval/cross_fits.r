@@ -43,6 +43,12 @@ plot.and.fit <- function (df, plot=F) {
     return(fit)
 }
 
+# TODO: calculate error on s-correction channel
+plot.and.fit(df.e, plot=T)
+plot.and.fit(df.m, plot=T)
+plot.and.fit(df.t, plot=T)
+plot.and.fit(df.h, plot=T)
+
 # Summarize the fits real quick
 fit.df <- data.frame(t(sapply(list(df.e, df.m, df.t, df.h),
                               . %>%
@@ -99,6 +105,12 @@ Gamma.Z <- set_units(weighted.mean(fit.df$Gamma.Z, 1 / fit.df$Gamma.Z.err^2),
 Gamma.Z.err <- set_units(fit.df$Gamma.Z %>% {sd(.) / sqrt(length(.))},
                          GeV)
 
+# Same for Z mass
+M.Z <- set_units(weighted.mean(fit.df$M.Z, 1 / fit.df$M.Z.err^2),
+                 "GeV/c^2")
+M.Z.err <- set_units(fit.df$M.Z %>% {sd(.) / sqrt(length(.))},
+                     "GeV/c^2")
+
 ####################################
 #  Number of neutrino generations  #
 ####################################
@@ -110,7 +122,7 @@ Gamma.nu <- set_units(165.88050, MeV)
 # able to obtain the total number of neutrino generations
 N.Neutrinos <- (Gamma.Z - sum(fit.df$Gamma.f)) / Gamma.nu
 N.Neutrinos.err <- sqrt(Gamma.Z.err^2 + sum(fit.df$Gamma.f.err^2)) / Gamma.nu
-
+# TODO: compare with LEP neutrino family <31-03-21> #
 
 ####################################
 #  Cross section/Branching ratios  #
@@ -142,6 +154,8 @@ fit.df %<>%
                                      (sigma.peak.err[4] * sigma.peak /
                                       sigma.peak[4]^2)^2))
 
+fit.df$sigma.peak.ratio
+fit.df$sigma.peak.ratio.err
 # Compute the ratios of the decay widths
 fit.df %<>%
     mutate(branching.ratio=Gamma.f / Gamma.f[4])
