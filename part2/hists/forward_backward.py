@@ -1,19 +1,14 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 from opal_import import get_luminosity_dataframe
 from mc_import import get_mc_dataframe
-from cuts import opal_df
+from cuts import opal_df as opal_df2
 from matrix_inversion import get_cached_inverse
 
-
-# Read in the luminosity data
-lum = get_luminosity_dataframe()
 # Corrections for the forward-backward asymmetry (no units)
-rad_corr = [0.021512, 0.019262, 0.016713, 0.018293, 0.030286, 0.062196,
-            0.093850]
-# Inversed efficiency matrix and the errors.
-mat_eff, mat_err = get_cached_inverse()
+rad_corr = [
+    0.021512, 0.019262, 0.016713, 0.018293, 0.030286, 0.062196, 0.093850
+]
 
 
 # Function to calculate the forward-backward asymmetrie for given forward and
@@ -23,10 +18,11 @@ def A_FB(N_f, N_b):
 
 
 # Error calculation of the forward-backward asymmetrie.
-def err_afb(N_f_err, N_b_err, N_f, N_b):
-    return (A_FB(N_b, N_f) * np.sqrt((N_f_err / (N_f + N_b))**2 +
-            (N_b_err / (N_f + N_b))**2 + ((N_f - N_b) / (N_f + N_b)**2
-            * N_b_err)**2 + ((N_f - N_b) / (N_f + N_b)**2 * N_f_err)**2))
+def A_FB_err(N_f_err, N_b_err, N_f, N_b):
+    return (A_FB(N_f, N_b) *
+            np.sqrt((N_f_err / (N_f + N_b))**2 + (N_b_err / (N_f + N_b))**2 +
+                    ((N_f - N_b) / (N_f + N_b)**2 * N_b_err)**2 +
+                    ((N_f - N_b) / (N_f + N_b)**2 * N_f_err)**2))
 
 
 # Function to calculate the sin squared of the weinberg angle out of the
@@ -35,7 +31,7 @@ def sin_W(A_FB):
     return 0.25 * (1 - np.sqrt(np.abs(A_FB) / 3))
 
 
-def err_sinW(sin_W, A_FB, err_AFB):
+def sin_W_err(sin_W, A_FB, err_AFB):
     return (sin_W * np.sqrt((err_AFB / (8 * np.sqrt(3 * np.abs(A_FB))))**2))
 
 
@@ -44,34 +40,38 @@ def Num_error(N, eff, eff_err):
     return (N * eff_err + np.sqrt(N) * eff)
 
 
+# Data Import
+opal_df = opal_df2.copy()  # I hate pandas (copying is necessary)
+lum = get_luminosity_dataframe()
+# Inversed efficiency matrix and the errors.
+E_inv, E_inv_err = get_cached_inverse()
+
 # MC Data ##################################################################
 
 # Initializing the mc dataframe.
 MC_df = get_mc_dataframe()
 
 # Cutting out the events of the forward and backward hemisphere respectly.
-MC_muonb = MC_df.loc[(MC_df['ptype'] == 'm') & (MC_df['cos_thet'] < 0) &
-                     (MC_df['cos_thet'] > -1)]
-MC_muonf = MC_df.loc[(MC_df['ptype'] == 'm') & (MC_df['cos_thet'] < 1) &
-                     (MC_df['cos_thet'] > 0)]
+MC_muon_b = MC_df.loc[(MC_df['ptype'] == 'm') & (MC_df['cos_thet'] < 0) &
+                      (MC_df['cos_thet'] > -1)]
+MC_muon_f = MC_df.loc[(MC_df['ptype'] == 'm') & (MC_df['cos_thet'] < 1) &
+                      (MC_df['cos_thet'] > 0)]
 
 # Calculating the forward and backward cross section using the luminosity for
 # the nearest beam energy to the one used in the mc simulations.
-# Number of muon events in the forward region
-MC_N_f = len(MC_muonf)
-# Number of muon events in the backward region
-MC_N_b = len(MC_muonb)
+# Number of muon events in the forward/backward region
+MC_N_f = len(MC_muon_f)
+MC_N_b = len(MC_muon_b)
 # Estimate the error on both using the square root (this is a counting
 # experiment with a sufficiently low error rate)
 MC_N_f_err = np.sqrt(MC_N_f)
 MC_N_b_err = np.sqrt(MC_N_b)
 
-# Calculating the forward-backward asymmetry for the mc data.
+# Calculating the forward-backward asymmetry and sin^2 for the mc data.
 MC_afb = A_FB(MC_N_f, MC_N_b) + rad_corr[3]
-MC_afb_err = err_afb(MC_N_f_err, MC_N_b_err, MC_N_f, MC_N_b)
-# Calculatin the sin squared of the weinberg angle
+MC_afb_err = A_FB_err(MC_N_f_err, MC_N_b_err, MC_N_f, MC_N_b)
 MC_sin = sin_W(MC_afb)
-MC_sin_err = err_sinW(MC_sin, MC_afb, MC_afb_err)
+MC_sin_err = sin_W_err(MC_sin, MC_afb, MC_afb_err)
 
 if __name__ == "__main__":
     # Printing the MC data.
@@ -79,111 +79,64 @@ if __name__ == "__main__":
     print("A_FB, error A_FB, sin(theta_W)**2, err sin")
     print(MC_afb, MC_afb_err, MC_sin, MC_sin_err)
 
-#### OPAL data ################################################################
+# OPAL data
 
 # Sorting the opal data into forward and backward data and the different beam
-# energies, by the new collumns hemisphere and lum_beam.
+# energies, by the new column hemisphere.
+# Further, set categorical variables.
 opal_df['hemisphere'] = 'u'
-opal_df['lum_beam'] = 'u'
-
-opal_df.loc[(opal_df['cos_thet'] < 0) & (opal_df['cos_thet'] > -1), 'hemisphere'] = 'b'
+opal_df.loc[(opal_df['cos_thet'] < 0) & (opal_df['cos_thet'] > -1),
+            'hemisphere'] = 'b'
 opal_df.loc[(opal_df['cos_thet'] < 1) & (opal_df['cos_thet'] > 0),
-    'hemisphere'] = 'f'
+            'hemisphere'] = 'f'
+opal_df = opal_df.loc[opal_df['hemisphere'] != 'u']
+opal_df['guess'] = pd.Categorical(opal_df['guess'], ['e', 'm', 't', 'h'])
+opal_df['hemisphere'] = pd.Categorical(opal_df['hemisphere'], ['f', 'b'])
 
-opal_df.loc[(opal_df['E_lep'] * 2 < (89.46658 + 88.47630) / 2), 'lum_beam'] = lum['lumi'][0]
-opal_df.loc[(opal_df['E_lep'] * 2 > (89.46658 + 88.47630) / 2) &
-(opal_df['E_lep'] * 2 < (89.46658 + 90.21986) / 2), 'lum_beam'] = lum['lumi'][1]
-opal_df.loc[(opal_df['E_lep'] * 2 > (89.46658 + 90.21986) / 2) &
-(opal_df['E_lep'] * 2 < (91.22910 + 90.21986) / 2), 'lum_beam'] = lum['lumi'][2]
-opal_df.loc[(opal_df['E_lep'] * 2 > (91.22910 + 90.21986) / 2) &
-(opal_df['E_lep'] * 2 < (91.22910 + 91.96428) / 2), 'lum_beam'] = lum['lumi'][3]
-opal_df.loc[(opal_df['E_lep'] * 2 > (91.22910 + 91.96428) / 2) &
-(opal_df['E_lep'] * 2 < (92.96229 + 91.96428) / 2), 'lum_beam'] = lum['lumi'][4]
-opal_df.loc[(opal_df['E_lep'] * 2 > (92.96229 + 91.96428) / 2) &
-(opal_df['E_lep'] * 2 < (92.96229 + 93.71362) / 2), 'lum_beam'] = lum['lumi'][5]
-opal_df.loc[(opal_df['E_lep'] * 2 > (92.96229 + 93.71362) / 2), 'lum_beam'] = lum['lumi'][6]
+# Integrate the luminosity data frame. While we don't need the luminosity for
+# the calculation of A_FB, the correction terms are only available for the
+# seven energy observations found in the luminosity data frame so we merge the
+# two just as in opal_crosssections.py
+opal_df.sort_values(by='sqrt_s', inplace=True)
+opal_df = pd.merge_asof(opal_df,
+                        lum,
+                        left_on='sqrt_s',
+                        right_on='meanenergy',
+                        direction='nearest')
+# Calculate an 'error' on the mean energy by the nearest merging
+meanenergy_err = opal_df.groupby('meanenergy').agg('std')['sqrt_s']
+# Now, group by the rows meanenergy and guess
+df = opal_df.groupby(['hemisphere', 'meanenergy',
+                      'guess']).size().reset_index(name='NTilde')
 
-# Calculating the number of muon events for each sorted event.
-N_forward = []
-N_backward = []
-for i in range(0, 7):
-   N_forward.append(len(opal_df[(opal_df['hemisphere'] == 'f') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 'e')]) * mat_eff[1][0] 
-   + len(opal_df[(opal_df['hemisphere'] == 'f') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 'm')]) * mat_eff[1][1] 
-   + len(opal_df[(opal_df['hemisphere'] == 'f') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 't')]) * mat_eff[1][2]
-   + len(opal_df[(opal_df['hemisphere'] == 'f') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 'h')]) * mat_eff[1][3])
-   N_backward.append(len(opal_df[(opal_df['hemisphere'] == 'b') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 'e')]) * mat_eff[1][0] 
-   + len(opal_df[(opal_df['hemisphere'] == 'b') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 'm')]) * mat_eff[1][1] 
-   + len(opal_df[(opal_df['hemisphere'] == 'b') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 't')]) * mat_eff[1][2]
-   + len(opal_df[(opal_df['hemisphere'] == 'b') & (opal_df['lum_beam'] ==
-   lum['lumi'][i]) & (opal_df['guess'] == 'h')]) * mat_eff[1][3])
+# Sort the data frame by the hemisphere, the meanenergy and the guess variable.
+df.sort_values(by=['hemisphere', 'meanenergy', 'guess'], inplace=True)
+# (Create and) Multiply the block diagonal inverse efficiency matrix...
+big_E_inv = np.kron(np.eye(14, dtype=int), E_inv)
+big_E_inv_err = np.kron(np.eye(14, dtype=int), E_inv_err)
+df['N'] = big_E_inv.dot(df.NTilde)
+# Fix some frequencies to be zero (this is the result of discarding some values
+# based on their cosine)
+df.loc[df['N'] < 0, 'N'] = 0
+# Calculate the error on N_err
+df['N_err'] = np.sqrt(((big_E_inv_err)**2).dot(df['N']**2) +
+                      ((big_E_inv)**2).dot(np.sqrt(df['N']**2)))
 
-# Calculating the error for the number of events
-Nerr_b = []
-Nerr_f = []
-for i in range(0, 7):
-    Nerr_b.append(Num_error(len(opal_df[(opal_df['hemisphere'] == 'b') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 'e')]),
-        mat_eff[1][0], mat_err[1][0])
-        + Num_error(len(opal_df[(opal_df['hemisphere'] == 'b') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 'm')]),
-        mat_eff[1][1], mat_err[1][1])
-        + Num_error(len(opal_df[(opal_df['hemisphere'] == 'b') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 't')]),
-        mat_eff[1][2], mat_err[1][2])
-        + Num_error(len(opal_df[(opal_df['hemisphere'] == 'b') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 'h')]),
-        mat_eff[1][3], mat_err[1][3]))
-    Nerr_f.append(Num_error(len(opal_df[(opal_df['hemisphere'] == 'f') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 'e')]),
-        mat_eff[1][0], mat_err[1][0])
-        + Num_error(len(opal_df[(opal_df['hemisphere'] == 'f') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 'm')]),
-        mat_eff[1][1], mat_err[1][1])
-        + Num_error(len(opal_df[(opal_df['hemisphere'] == 'f') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 't')]),
-        mat_eff[1][2], mat_err[1][2])
-        + Num_error(len(opal_df[(opal_df['hemisphere'] == 'f') &
-        (opal_df['lum_beam'] == lum['lumi'][i]) & (opal_df['guess'] == 'h')]),
-        mat_eff[1][3], mat_err[1][3]))
+# Discard every non-muonic events
+df = df[df['guess'] == 'm']
+# Convert hemisphere observation to variable
+df = pd.pivot_table(df,
+                    values=['N', 'N_err'],
+                    index='meanenergy',
+                    columns='hemisphere')
 
-# Calculating the forward and backward cross section and the errors.
-O_sigb = []
-O_sigf = []
-Oerr_sigb = []
-Oerr_sigf = []
-for i in range(0, 7):
-    O_sigb.append(N_backward[i] / lum['lumi'][i])
-    O_sigf.append(N_forward[i] / lum['lumi'][i])
-    Oerr_sigb.append(O_sigb[i] / lum['lumi'][i] * lum['all'][i] +
-            Nerr_b[i] / lum['lumi'][i])
-    Oerr_sigf.append(O_sigf[i] / lum['lumi'][i] * lum['all'][i] +
-            Nerr_f[i] / lum['lumi'][i])
-
-# Calculating the forward-backward asymmetry for the opal data and the errors.
-O_afb = []
-Oerr_afb = []
-for i in range(0,7):
-    O_afb.append(A_FB(O_sigb[i], O_sigf[i]) + rad_corr[i])
-    Oerr_afb.append(err_afb(Oerr_sigb[i], Oerr_sigf[i], O_sigb[i],
-        O_sigf[i]))
-
-# Calculating sin squared of the weinberg angle.
-O_sin = []
-Oerr_sin = []
-for i in range(0,7):
-    O_sin.append(sin_W(O_afb[i]))
-    Oerr_sin.append(err_sinW(O_sin[i], O_afb[i], Oerr_afb[i]))
+# Calculate the forward backward asymmetry and the sin^2 of the Weinberg angle
+# and their respective errors
+df = df.assign(A_FB=A_FB(df[('N', 'f')], df[('N', 'b')]) + rad_corr,
+               A_FB_err=A_FB_err(df[('N_err', 'f')], df[('N_err', 'b')],
+                                 df[('N', 'f')], df[('N', 'b')]))
+df = df.assign(sin_W=sin_W(df['A_FB']))
+df = df.assign(sin_W_err=sin_W_err(df['sin_W'], df['A_FB'], df['A_FB_err']))
 
 if __name__ == "__main__":
-    # Print data
-    print("Opal data:")
-    print("A_FB, error A_FB, sin(theta_W)**2, err sin")
-    for i in range(0, 7):
-        print(O_afb[i], Oerr_afb[i], O_sin[i], Oerr_sin[i])
+    print(df)
