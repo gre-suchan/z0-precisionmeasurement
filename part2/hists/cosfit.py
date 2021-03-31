@@ -93,10 +93,11 @@ err_efficiency = np.sqrt(gradient.dot(pcov.dot(gradient)))
 # Calculate the s channel correction factor. As our selection is extremely
 # picky, we miss many s channel electrons so we have to correct by the ratio of
 # the s channel primitive over the whole region divided by the integral over
-# the narrow (picky) region
-s_channel_correction = \
-    ((primitive_A(1, popt[0]) - primitive_A(-1, popt[0]))
-     / (primitive_A(upper_cut, popt[0]) - primitive_A(lower_cut, popt[0])))
+# the narrow (picky) region.
+# If one works out the math, one finds that the result doesn't depend on the
+# fit parameters and is an exact calue
+s_channel_correction = 8 / \
+    (upper_cut**3 - lower_cut**3 + 3 * (upper_cut - lower_cut))
 
 if __name__ == "__main__":
     # Print fit parameters
