@@ -133,3 +133,17 @@ if __name__ == "__main__" and PLOTTING:
     plt.legend()
     plt.show()
     plt.clf()
+
+hist2d_mu, _, __, ___ = plt.hist2d(pcharged_mu,
+                                   e_ecal_mu,
+                                   bins=20,
+                                   range=[[0, 120], [0, 100]])
+hist2d_tau, _, __, ___ = plt.hist2d(pcharged_tau,
+                                    e_ecal_tau,
+                                    bins=20,
+                                    range=[[0, 120], [0, 100]])
+np.savetxt(PATH + 'hist2d_mu.txt', hist2d_mu)
+np.savetxt(PATH + 'hist2d_tau.txt', hist2d_tau)
+if __name__ == "__main__" and PLOTTING:
+    plt.show()
+    plt.clf()
