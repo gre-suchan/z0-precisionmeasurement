@@ -54,3 +54,32 @@ write.csv(file="../../plot_data/part1/hists/ecal.csv",
           row.names=F,
           hist.df3)
 
+p.brks <- seq(0, 120, by=5)
+ggplot(data=data,
+       aes(x=p.charged, group=particle, fill=particle)) +
+    geom_histogram(alpha=.5, breaks=p.brks, position='identity', color='black') +
+    theme_minimal()
+hist.df4 <- bin.and.hist(data, p.brks, "p.charged")
+write.csv(file="../../plot_data/part1/hists/p.charged.csv",
+          row.names=F,
+          hist.df4)
+
+hcal.brks <- seq(0, 86, by=2)
+ggplot(data=data,
+       aes(x=e.hcal, group=particle, fill=particle)) +
+    geom_histogram(alpha=.5, breaks=hcal.brks, position='identity', color='black') +
+    theme_minimal()
+hist.df5 <- bin.and.hist(data, hcal.brks, "e.hcal")
+write.csv(file="../../plot_data/part1/hists/hcal.csv",
+          row.names=F,
+          hist.df5)
+
+aaa <- seq(-1, 3, by=1)
+ggplot(data=data,
+       aes(x=n.muon, group=particle, fill=particle)) +
+    geom_histogram(alpha=.5, breaks=aaa, position='identity', color='black') +
+    theme_minimal()
+hist.df6 <- bin.and.hist(data, aaa, "n.muon")
+write.csv(file="../../plot_data/part1/hists/n.muon.csv",
+          row.names=F,
+          hist.df6)
