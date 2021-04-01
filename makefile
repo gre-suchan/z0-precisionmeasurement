@@ -21,7 +21,7 @@ forward_backward_asymmetry: $(op2afb)
 
 crosssections: $(op2c)
 
-mchists: $(op2m)
+hists: $(op2m)
 
 $(op1h) :
 	mkdir -p $(@D)
@@ -32,7 +32,8 @@ $(op2e):
 	(cd $(PDIR) && $(P) matrix_inversion_export.py )
 
 $(op2m):
-	mkdir -p $(@D)
+	mkdir -p plot_data/part2/mc_hists
+	mkdir -p plot_data/part2/opal_hists
 	(cd $(PDIR) && $(P) export_hist.py )
 
 $(op2afb):
