@@ -21,10 +21,12 @@ df %$%
            length=.05, angle=90, code=3)
 
 # Now, do a linear fit on
-fit <- lm(A.FB ~ sqrt.s, data=df, weights=1/A.FB.err^2)
+sprintf("Normal linear model")
+fit <- lm(A.FB ~ sqrt.s, data=df, weights=1/A.FB.err^2); print(fit)
 abline(fit, col='red')
 
-deming.fit <- deming(A.FB ~ sqrt.s, data=df, xstd=sqrt.s.err, ystd=A.FB.err)
+sprintf("Deming linear model")
+deming.fit <- deming(A.FB ~ sqrt.s, data=df, xstd=sqrt.s.err, ystd=A.FB.err); print(deming.fit)
 abline(deming.fit, col='blue')
 
 # Our measured Z mass
@@ -46,6 +48,7 @@ v <- vcov(fit) %>%
     rbind(0) %>%
     cbind(c(0, 0, M.Z.err^2))
 A.FB.res.err <- as.numeric(sqrt(grad %*% v %*% grad))
+sprintf("Estimate for A.FB at resonance: %g +- %g", A.FB.res, A.FB.res.err)
 
 points(M.Z, A.FB.res, col='blue')
 arrows(M.Z, A.FB.res-A.FB.res.err,
@@ -75,6 +78,7 @@ v.alt <- deming.fit$variance %>%
     rbind(0) %>%
     cbind(c(0, 0, M.Z.err^2))
 A.FB.res.alt.err <- as.numeric(sqrt(grad.alt %*% v.alt %*% grad.alt))
+sprintf("Alternative estimate for A.FB at resonance: %g +- %g", A.FB.res.alt, A.FB.res.alt.err)
 points(M.Z, A.FB.res.alt, col='green')
 arrows(M.Z, A.FB.res.alt-A.FB.res.alt.err,
        M.Z, A.FB.res.alt+A.FB.res.alt.err,
