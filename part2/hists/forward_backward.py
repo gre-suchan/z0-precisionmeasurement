@@ -133,12 +133,23 @@ df = pd.pivot_table(df,
 
 # Calculate the forward backward asymmetry and the sin^2 of the Weinberg angle
 # and their respective errors
-df = df.assign(A_FB=A_FB(df[('N', 'f')], df[('N', 'b')]) + rad_corr,
-               A_FB_err=A_FB_err(df[('N_err', 'f')], df[('N_err', 'b')],
-                                 df[('N', 'f')], df[('N', 'b')]))
-df = df.assign(sin_W=sin_W(df['A_FB']))
-df = df.assign(sin_W_err=sin_W_err(df['sin_W'], df['A_FB'], df['A_FB_err']))
-df['meanenergy_err'] = meanenergy_err
+# These three lines I don't understand tbh
+df.columns = df.columns.get_level_values(0)
+df.reset_index(inplace=True)
+df.columns = ['meanenergy', 'Nf', 'Nb', 'Nferr', 'Nberr']
+
+df['A_FB'] = A_FB(df['Nf'], df['Nb']) + rad_corr
+df['A_FB_err'] = A_FB_err(df['Nferr'], df['Nberr'],
+                                     df['Nf'], df['Nb'])
+df['sin_W'] = sin_W(df['A_FB'])
+df['sin_W_err'] = sin_W_err(df['sin_W'], df['A_FB'], df['A_FB_err'])
+
+# df = df.assign(A_FB=A_FB(df[('N', 'f')], df[('N', 'b')]) + rad_corr,
+#                A_FB_err=A_FB_err(df[('N_err', 'f')], df[('N_err', 'b')],
+#                                  df[('N', 'f')], df[('N', 'b')]))
+# df = df.assign(sin_W=sin_W(df['A_FB']))
+# df = df.assign(sin_W_err=sin_W_err(df['sin_W'], df['A_FB'], df['A_FB_err']))
+df['meanenergy_err'] = meanenergy_err.values
 
 df.to_csv(path_data + "A_FB.csv")
 
