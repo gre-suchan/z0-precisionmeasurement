@@ -6,7 +6,7 @@ library(deming)
 df <- read.csv("../../plot_data/part2/forward_backward/A_FB.csv",
                col.names=c("sqrt.s", "N.f","N.b","N.f.err","N.b.err", "A.FB",
                            "A.FB.err","sin.W","sin.W_err", "sqrt.s.err"), 
-               skip=2)
+               skip=1)
 df$A.FB.err %<>% abs
 # Plot the forward-backward asymmetry against sqrt(s)
 df %$%
