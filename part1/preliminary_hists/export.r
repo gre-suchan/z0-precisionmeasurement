@@ -74,7 +74,7 @@ write.csv(file="../../plot_data/part1/hists/hcal.csv",
           row.names=F,
           hist.df5)
 
-aaa <- seq(0, 3, by=1)
+aaa <- seq(-1, 3, by=1)
 ggplot(data=data,
        aes(x=n.muon, group=particle, fill=particle)) +
     geom_histogram(alpha=.5, breaks=aaa, position='identity', color='black') +
