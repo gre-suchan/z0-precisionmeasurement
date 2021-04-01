@@ -44,10 +44,10 @@ plot.and.fit <- function (df, plot=F) {
 }
 
 # TODO: calculate error on s-correction channel
-plot.and.fit(df.e, plot=T)
-plot.and.fit(df.m, plot=T)
-plot.and.fit(df.t, plot=T)
-plot.and.fit(df.h, plot=T)
+fit.e <- plot.and.fit(df.e, plot=T); summary(fit.e)
+fit.m <- plot.and.fit(df.m, plot=T); summary(fit.m)
+fit.t <- plot.and.fit(df.t, plot=T); summary(fit.t)
+fit.h <- plot.and.fit(df.h, plot=T); summary(fit.h)
 
 # Summarize the fits real quick
 fit.df <- data.frame(t(sapply(list(df.e, df.m, df.t, df.h),
