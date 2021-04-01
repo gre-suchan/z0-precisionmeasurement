@@ -25,6 +25,11 @@ e_hcal_el = df.loc[df['ptype'] == 'e', 'E_hcal']
 e_hcal_mu = df.loc[df['ptype'] == 'm', 'E_hcal']
 e_hcal_tau = df.loc[df['ptype'] == 't', 'E_hcal']
 
+cos_ha = df.loc[df['ptype'] == 'h', 'cos_thru']
+cos_el = df.loc[df['ptype'] == 'e', 'cos_thet']
+cos_mu = df.loc[df['ptype'] == 'm', 'cos_thet']
+cos_tau = df.loc[df['ptype'] == 't', 'cos_thet']
+
 PATH = "../../plot_data/part2/mc_hists/"
 
 
@@ -105,6 +110,24 @@ export_hist(pcharged_ha_hist, PATH + 'pcharged_ha.txt')
 export_hist(pcharged_el_hist, PATH + 'pcharged_el.txt')
 export_hist(pcharged_mu_hist, PATH + 'pcharged_mu.txt')
 export_hist(pcharged_tau_hist, PATH + 'pcharged_tau.txt')
+
+if __name__ == "__main__" and PLOTTING:
+    plt.legend()
+    plt.show()
+    plt.clf()
+
+cos_hist_bin = np.linspace(-1, 1, 36)
+(cos_el_hist, cos_mu_hist, cos_tau_hist, cos_ha_hist) =\
+    (plt.hist(cos_el, alpha=.5, bins=cos_hist_bin, label='e'),
+     plt.hist(cos_mu, alpha=.5, bins=cos_hist_bin, label='e'),
+     plt.hist(cos_tau, alpha=.5, bins=cos_hist_bin, label='e'),
+     plt.hist(cos_ha, alpha=.5, bins=cos_hist_bin, label='e'))
+cos_el_hist_fine = plt.hist(cos_el, bins=np.linspace(-1, 1, 360))
+export_hist(cos_el_hist, PATH + 'cos_el.txt')
+export_hist(cos_el_hist_fine, PATH + 'cos_el_fine.txt')
+export_hist(cos_mu_hist, PATH + 'cos_mu.txt')
+export_hist(cos_tau_hist, PATH + 'cos_tau.txt')
+export_hist(cos_ha_hist, PATH + 'cos_ha.txt')
 
 if __name__ == "__main__" and PLOTTING:
     plt.legend()
