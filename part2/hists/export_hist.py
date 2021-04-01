@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuts import mc_df as df
 
+# Don't actually show the plots
+PLOTTING = False
+
 ncharged_ha = df.loc[df['ptype'] == 'h', 'Ncharged']
 ncharged_el = df.loc[df['ptype'] == 'e', 'Ncharged']
 ncharged_mu = df.loc[df['ptype'] == 'm', 'Ncharged']
@@ -52,7 +55,7 @@ export_hist(ncharged_el_hist, PATH + 'ncharged_el.txt')
 export_hist(ncharged_mu_hist, PATH + 'ncharged_mu.txt')
 export_hist(ncharged_tau_hist, PATH + 'ncharged_tau.txt')
 
-if __name__ == "__main__":
+if __name__ == "__main__" and PLOTTING:
     plt.legend()
     plt.show()
     plt.clf()
@@ -69,7 +72,7 @@ export_hist(e_ecal_el_hist, PATH + 'e_ecal_el.txt')
 export_hist(e_ecal_mu_hist, PATH + 'e_ecal_mu.txt')
 export_hist(e_ecal_tau_hist, PATH + 'e_ecal_tau.txt')
 
-if __name__ == "__main__":
+if __name__ == "__main__" and PLOTTING:
     plt.legend()
     plt.show()
     plt.clf()
@@ -86,7 +89,7 @@ export_hist(e_hcal_el_hist, PATH + 'e_hcal_el.txt')
 export_hist(e_hcal_mu_hist, PATH + 'e_hcal_mu.txt')
 export_hist(e_hcal_tau_hist, PATH + 'e_hcal_tau.txt')
 
-if __name__ == "__main__":
+if __name__ == "__main__" and PLOTTING:
     plt.legend()
     plt.show()
     plt.clf()
@@ -103,7 +106,7 @@ export_hist(pcharged_el_hist, PATH + 'pcharged_el.txt')
 export_hist(pcharged_mu_hist, PATH + 'pcharged_mu.txt')
 export_hist(pcharged_tau_hist, PATH + 'pcharged_tau.txt')
 
-if __name__ == "__main__":
+if __name__ == "__main__" and PLOTTING:
     plt.legend()
     plt.show()
     plt.clf()

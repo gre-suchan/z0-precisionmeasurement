@@ -19,6 +19,10 @@ grope: $(op1h)
 
 forward_backward_asymmetry: $(op2afb)
 
+crosssections: $(op2c)
+
+mchists: $(op2m)
+
 $(op1h) :
 	mkdir -p $(@D)
 	(cd $(GROPEDIR) && $(R) export.r )
@@ -40,7 +44,4 @@ $(op2c):
 	(cd $(PDIR) && $(P) opal_crosssections.py )
 
 clean:
-	$(RM) -r -f plot_data/part1/
-	$(RM) -r -f plot_data/part2/crosssections
-	$(RM) -r -f plot_data/part2/efficiencies
-	$(RM) -r -f plot_data/part2/forward_backward
+	$(RM) -r -f plot_data/
