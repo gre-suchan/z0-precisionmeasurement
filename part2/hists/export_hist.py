@@ -117,7 +117,7 @@ for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
         plt.show()
         plt.clf()
 
-    cos_hist_bin = np.linspace(-1, 1, 36)
+    cos_hist_bin = np.linspace(-1, 1, 21)
     (cos_el_hist, cos_mu_hist, cos_tau_hist, cos_ha_hist) =\
         (plt.hist(cos_el, alpha=.5, bins=cos_hist_bin, label='e'),
          plt.hist(cos_mu, alpha=.5, bins=cos_hist_bin, label='e'),

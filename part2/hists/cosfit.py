@@ -36,7 +36,7 @@ def primitive_B(x, B):
 
 
 # Bined data.
-angle_binned, bins = np.histogram(angle, bins=np.linspace(-.9, .9, 30))
+angle_binned, bins = np.histogram(angle, bins=np.linspace(-.9, .9, 36 * 9))
 
 # Calculate bin centers
 bincenters = (bins[1:] + bins[:-1]) / 2
@@ -50,7 +50,7 @@ popt, pcov = curve_fit(fit_function,
 
 # Plotting the results
 # xvalues for the plotting
-xspace = np.linspace(-1, 1, 10000, endpoint=False)
+xspace = np.linspace(-1, 1, 360, endpoint=False)
 
 if __name__ == "__main__":
     # the plots
