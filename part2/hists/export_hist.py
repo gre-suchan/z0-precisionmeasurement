@@ -135,16 +135,31 @@ for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
         plt.show()
         plt.clf()
 
-    hist2d_mu, _, __, ___ = plt.hist2d(pcharged_mu,
-                                       e_ecal_mu,
-                                       bins=20,
-                                       range=[[0, 120], [0, 100]])
-    hist2d_tau, _, __, ___ = plt.hist2d(pcharged_tau,
-                                        e_ecal_tau,
-                                        bins=20,
-                                        range=[[0, 120], [0, 100]])
-    np.savetxt(PATH + 'hist2d_mu.txt', hist2d_mu)
-    np.savetxt(PATH + 'hist2d_tau.txt', hist2d_tau)
+    hist2d_mu, xh_mu, yh_mu, _ = plt.hist2d(pcharged_mu,
+                                            e_ecal_mu,
+                                            bins=20,
+                                            range=[[0, 120], [0, 100]])
+    x_mu_ = (xh_mu[1:] + xh_mu[:-1]) / 2
+    y_mu_ = (yh_mu[1:] + yh_mu[:-1]) / 2
+
+    x_mu = np.tile(x_mu_, len(y_mu_))
+    y_mu = np.repeat(y_mu_, len(x_mu_))
+    np.savetxt(PATH + 'hist2d_mu.txt', np.array([x_mu, y_mu,
+               hist2d_mu.flatten()]).T)
+
+    hist2d_tau, xh_tau, yh_tau, ___ = plt.hist2d(pcharged_tau,
+                                                 e_ecal_tau,
+                                                 bins=20,
+                                                 range=[[0, 120], [0, 100]])
+    x_tau_ = (xh_tau[1:] + xh_tau[:-1]) / 2
+    y_tau_ = (yh_tau[1:] + yh_tau[:-1]) / 2
+
+    x_tau = np.tile(x_tau_, len(y_tau_))
+    y_tau = np.repeat(y_tau_, len(x_tau_))
+    np.savetxt(PATH + 'hist2d_tau.txt', np.array([x_tau, y_tau,
+               hist2d_tau.flatten()]).T)
+    # np.savetxt(PATH + 'hist2d_mu.txt', hist2d_mu)
+    # np.savetxt(PATH + 'hist2d_tau.txt', hist2d_tau)
     if __name__ == "__main__" and PLOTTING:
         plt.show()
         plt.clf()
