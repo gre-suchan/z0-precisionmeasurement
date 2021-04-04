@@ -129,7 +129,7 @@ N.Neutrinos.err <- sqrt(Gamma.Z.err^2 + sum(fit.df$Gamma.f.err^2)) / Gamma.nu
 fit.df %<>%
     mutate(sigma.peak=set_units(12 * pi * Gamma.e.Gamma.f / (M.Z^2 * Gamma.Z^2),
                                 nanobarn))
-    
+
 gradient <- . %>% {12 * pi * c(1 / (.[2]^2 * .[3]^2),
                                .[1] / (.[2]^2 * (-.[3])^3),
                                .[1] / (-.[2]^3 * .[3]^2))}
@@ -138,7 +138,8 @@ fit.df$sigma.peak.err <- lapply(list(df.e, df.m, df.t, df.h), . %>%    # For eac
                                 plot.and.fit %>%                       # Calculate the fits again
                                 {list(gradient(coef(.)), vcov(.))} %>% # Compute coef gradient and cov matrix
                                 {.[[1]] %*% .[[2]] %*% .[[1]]} %>%     # Multiply them out
-                                as.numeric) %>%                        # Convert to a numeric again
+                                as.numeric %>%                         # Convert to a numeric again
+                                sqrt) %>%
                          unlist %>%                                    # Convert the whole thing to a num vector
                          set_units(nanobarn)                           # Set the units
 
