@@ -151,7 +151,7 @@ df['sin_W_err'] = sin_W_err(df['sin_W'], df['A_FB'], df['A_FB_err'])
 # df = df.assign(sin_W_err=sin_W_err(df['sin_W'], df['A_FB'], df['A_FB_err']))
 df['meanenergy_err'] = meanenergy_err.values
 
-df.to_csv(path_data + "A_FB.csv")
+df.to_csv(path_data + "A_FB.csv", index=False)
 
 if __name__ == "__main__":
     print(df)
