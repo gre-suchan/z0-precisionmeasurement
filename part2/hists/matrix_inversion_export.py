@@ -33,7 +33,9 @@ for j in range(4):
         export_hist(hists[j][k], PATH + f'{j}{k}.txt')
 
 with open(PATH + 'fit_means.txt', 'w') as f:
-    f.write("{{\"" + "\",\"".join(map(str, inverse_means.flatten())) + "\"}}")
+    f.write("\\def\\fitmeans{{\"" +
+            "\",\"".join(map(str, inverse_means.flatten())) + "\"}}")
 
 with open(PATH + 'fit_sds.txt', 'w') as f:
-    f.write("{{\"" + "\",\"".join(map(str, inverse_errors.flatten())) + "\"}}")
+    f.write("\\def\\fiterrors{{\"" +
+            "\",\"".join(map(str, inverse_errors.flatten())) + "\"}}")

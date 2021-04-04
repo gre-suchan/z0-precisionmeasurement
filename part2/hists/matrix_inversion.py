@@ -130,6 +130,7 @@ def get_exact_errors():
             exact_inverse_errors[alpha, beta] = np.sqrt(
                 sum(inv[alpha, i]**2 * err_mat[i, j]**2 * inv[j, beta]**2
                     for i in range(4) for j in range(4)))
+    return exact_inverse_errors
 
 
 if __name__ == "__main__":
