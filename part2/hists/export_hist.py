@@ -2,10 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuts import mc_df, opal_df
 
+mc_df_zero_momentum = mc_df.loc[mc_df['Pcharged'] == 0]
+
 MC_PATH = "../../plot_data/part2/mc_hists/"
+MC_ZERO_MOMENTUM_PATH = "../../plot_data/part2/mc_hists_zero_momentum/"
 OPAL_PATH = "../../plot_data/part2/opal_hists/"
 
 for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
+                      (mc_df_zero_momentum, 'ptype', MC_ZERO_MOMENTUM_PATH),
                       (opal_df, 'guess', OPAL_PATH)]:
     # Don't actually show the plots
     PLOTTING = False
@@ -49,7 +53,7 @@ for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
                    header=header,
                    comments='')
 
-    ncharged_hist_bin = np.linspace(0, 40, 40)
+    ncharged_hist_bin = np.linspace(0, 40, 41)
     (ncharged_ha_hist, ncharged_el_hist, ncharged_mu_hist, ncharged_tau_hist) = \
         (plt.hist(ncharged_ha, alpha=.5, bins=ncharged_hist_bin, label='h'),
          plt.hist(ncharged_el, alpha=.5, bins=ncharged_hist_bin, label='e'),

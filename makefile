@@ -33,6 +33,7 @@ $(op2e):
 
 $(op2m):
 	mkdir -p plot_data/part2/mc_hists
+	mkdir -p plot_data/part2/mc_hists_zero_momentum
 	mkdir -p plot_data/part2/opal_hists
 	(cd $(PDIR) && $(P) export_hist.py )
 
