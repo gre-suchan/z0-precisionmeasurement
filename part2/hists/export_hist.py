@@ -8,9 +8,44 @@ MC_PATH = "../../plot_data/part2/mc_hists/"
 MC_ZERO_MOMENTUM_PATH = "../../plot_data/part2/mc_hists_zero_momentum/"
 OPAL_PATH = "../../plot_data/part2/opal_hists/"
 
+
+def export_hist(h: np.array, file, header=''):
+    """Saves a matplotlib hist object as tabular txt
+
+    :h: The matplotlib histogram
+    :file: The name of the output file
+    :header: The header of the txt
+    :returns: None
+
+    """
+    np.savetxt(file,
+               np.array(list(zip(h[1][:-1], h[1][1:], h[0]))),
+               header=header,
+               comments='')
+
+
+# Plot tec.ratio for MC data to show that its not a good selection criterion
+mc_df['ratio'] = mc_df['Pcharged'] / mc_df['E_ecal']
+ratio_ha = mc_df.loc[mc_df['guess'] == 'h', 'ratio']
+ratio_el = mc_df.loc[mc_df['guess'] == 'e', 'ratio']
+ratio_mu = mc_df.loc[mc_df['guess'] == 'm', 'ratio']
+ratio_tau = mc_df.loc[mc_df['guess'] == 't', 'ratio']
+
+ratio_hist_bin = np.linspace(0, 8, 81)
+ratio_ha_hist, ratio_el_hist, ratio_mu_hist, ratio_tau_hist = \
+    (plt.hist(ratio_ha, alpha=.5, bins=ratio_hist_bin, label='h'),
+     plt.hist(ratio_el, alpha=.5, bins=ratio_hist_bin, label='e'),
+     plt.hist(ratio_mu, alpha=.5, bins=ratio_hist_bin, label='m'),
+     plt.hist(ratio_tau, alpha=.5, bins=ratio_hist_bin, label='t'))
+
+export_hist(ratio_ha_hist, MC_PATH + 'ratio_ha.txt')
+export_hist(ratio_el_hist, MC_PATH + 'ratio_el.txt')
+export_hist(ratio_mu_hist, MC_PATH + 'ratio_mu.txt')
+export_hist(ratio_tau_hist, MC_PATH + 'ratio_tau.txt')
+
 for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
                       (mc_df_zero_momentum, 'ptype', MC_ZERO_MOMENTUM_PATH),
-                      (opal_df, 'guess', OPAL_PATH)]:
+                      (opal_df, 'guess', OPAL_PATH)][:-3]:
     # Don't actually show the plots
     PLOTTING = False
 
@@ -38,20 +73,6 @@ for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
     cos_el = df.loc[df[var] == 'e', 'cos_thet']
     cos_mu = df.loc[df[var] == 'm', 'cos_thet']
     cos_tau = df.loc[df[var] == 't', 'cos_thet']
-
-    def export_hist(h: np.array, file, header=''):
-        """Saves a matplotlib hist object as tabular txt
-
-        :h: The matplotlib histogram
-        :file: The name of the output file
-        :header: The header of the txt
-        :returns: None
-
-        """
-        np.savetxt(file,
-                   np.array(list(zip(h[1][:-1], h[1][1:], h[0]))),
-                   header=header,
-                   comments='')
 
     ncharged_hist_bin = np.linspace(0, 40, 41)
     (ncharged_ha_hist, ncharged_el_hist, ncharged_mu_hist, ncharged_tau_hist) = \
@@ -148,8 +169,8 @@ for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
 
     x_mu = np.tile(x_mu_, len(y_mu_))
     y_mu = np.repeat(y_mu_, len(x_mu_))
-    np.savetxt(PATH + 'hist2d_mu.txt', np.array([x_mu, y_mu,
-               hist2d_mu.flatten()]).T)
+    np.savetxt(PATH + 'hist2d_mu.txt',
+               np.array([x_mu, y_mu, hist2d_mu.flatten()]).T)
 
     hist2d_tau, xh_tau, yh_tau, ___ = plt.hist2d(pcharged_tau,
                                                  e_ecal_tau,
@@ -160,8 +181,8 @@ for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
 
     x_tau = np.tile(x_tau_, len(y_tau_))
     y_tau = np.repeat(y_tau_, len(x_tau_))
-    np.savetxt(PATH + 'hist2d_tau.txt', np.array([x_tau, y_tau,
-               hist2d_tau.flatten()]).T)
+    np.savetxt(PATH + 'hist2d_tau.txt',
+               np.array([x_tau, y_tau, hist2d_tau.flatten()]).T)
     # np.savetxt(PATH + 'hist2d_mu.txt', hist2d_mu)
     # np.savetxt(PATH + 'hist2d_tau.txt', hist2d_tau)
     if __name__ == "__main__" and PLOTTING:
