@@ -45,7 +45,7 @@ export_hist(ratio_tau_hist, MC_PATH + 'ratio_tau.txt')
 
 for df, var, PATH in [(mc_df, 'ptype', MC_PATH),
                       (mc_df_zero_momentum, 'ptype', MC_ZERO_MOMENTUM_PATH),
-                      (opal_df, 'guess', OPAL_PATH)][:-3]:
+                      (opal_df, 'guess', OPAL_PATH)]:
     # Don't actually show the plots
     PLOTTING = False
 
